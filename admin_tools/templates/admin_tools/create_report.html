@@ -1,0 +1,168 @@
+{% extends 'admin_tools/base.html' %}
+
+{% block admin_content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Create Analytics Report</h5>
+    </div>
+    <div class="card-body">
+        <form action="{% url 'admin_tools:create_report' %}" method="post">
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="mb-4">
+                <h6 class="mb-3">Basic Information</h6>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="reportName" class="form-label">Report Name</label>
+                        <input type="text" class="form-control" id="reportName" name="name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="reportType" class="form-label">Report Type</label>
+                        <select class="form-select" id="reportType" name="report_type" required>
+                            <option value="">Choose a report type...</option>
+                            <option value="user_growth">User Growth</option>
+                            <option value="course_performance">Course Performance</option>
+                            <option value="revenue">Revenue</option>
+                            <option value="engagement">User Engagement</option>
+                            <option value="custom">Custom Report</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Range -->
+            <div class="mb-4">
+                <h6 class="mb-3">Time Range</h6>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="mb-4">
+                <h6 class="mb-3">Filters</h6>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="userRole" class="form-label">User Role</label>
+                        <select class="form-select" id="userRole" name="user_role">
+                            <option value="">All Roles</option>
+                            <option value="student">Students</option>
+                            <option value="teacher">Teachers</option>
+                            <option value="admin">Admins</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="programStatus" class="form-label">Program Status</label>
+                        <select class="form-select" id="programStatus" name="program_status">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Parameters -->
+            <div class="mb-4" id="customParameters">
+                <h6 class="mb-3">Custom Parameters</h6>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="metric1" class="form-label">Metric 1</label>
+                        <select class="form-select" id="metric1" name="metric1">
+                            <option value="">Select a metric...</option>
+                            <option value="enrollment_count">Enrollment Count</option>
+                            <option value="completion_rate">Completion Rate</option>
+                            <option value="average_grade">Average Grade</option>
+                            <option value="revenue">Revenue</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="metric2" class="form-label">Metric 2</label>
+                        <select class="form-select" id="metric2" name="metric2">
+                            <option value="">Select a metric...</option>
+                            <option value="enrollment_count">Enrollment Count</option>
+                            <option value="completion_rate">Completion Rate</option>
+                            <option value="average_grade">Average Grade</option>
+                            <option value="revenue">Revenue</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule -->
+            <div class="mb-4">
+                <h6 class="mb-3">Schedule</h6>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="scheduleReport" name="schedule_report">
+                    <label class="form-check-label" for="scheduleReport">
+                        Schedule this report to run automatically
+                    </label>
+                </div>
+                <div class="row" id="scheduleOptions" style="display: none;">
+                    <div class="col-md-6 mb-3">
+                        <label for="scheduleFrequency" class="form-label">Frequency</label>
+                        <select class="form-select" id="scheduleFrequency" name="schedule_frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="scheduleTime" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="scheduleTime" name="schedule_time">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'admin_tools:analytics_dashboard' %}" class="btn btn-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(document).ready(function() {
+    // Show/hide custom parameters based on report type
+    $('#reportType').change(function() {
+        if ($(this).val() === 'custom') {
+            $('#customParameters').show();
+        } else {
+            $('#customParameters').hide();
+        }
+    });
+
+    // Show/hide schedule options
+    $('#scheduleReport').change(function() {
+        if ($(this).is(':checked')) {
+            $('#scheduleOptions').show();
+        } else {
+            $('#scheduleOptions').hide();
+        }
+    });
+
+    // Initialize date pickers
+    const today = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
+
+    $('#startDate').val(oneMonthAgo.toISOString().split('T')[0]);
+    $('#endDate').val(today.toISOString().split('T')[0]);
+});
+</script>
+{% endblock %} 

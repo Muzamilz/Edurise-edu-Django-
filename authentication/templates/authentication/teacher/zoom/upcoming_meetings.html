@@ -1,0 +1,69 @@
+{% extends 'authentication/teacher/base.html' %}
+{% load static %}
+
+{% block title %}Upcoming Virtual Classes - Edurise{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Upcoming Virtual Classes</h2>
+    
+    {% if meetings %}
+    <div class="row">
+        {% for meeting in meetings %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ meeting.topic }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Program:</strong> {{ meeting.program.name }}<br>
+                        <strong>Teacher:</strong> {{ meeting.teacher.get_full_name }}<br>
+                        <strong>Date & Time:</strong> {{ meeting.start_time|date:"F j, Y, g:i a" }}<br>
+                        <strong>Duration:</strong> {{ meeting.duration }} minutes
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ meeting.join_url }}" target="_blank" class="btn btn-success">
+                            <i class="fas fa-video"></i> Join Class
+                        </a>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#meetingModal{{ meeting.id }}">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meeting Details Modal -->
+        <div class="modal fade" id="meetingModal{{ meeting.id }}" tabindex="-1" aria-labelledby="meetingModalLabel{{ meeting.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="meetingModalLabel{{ meeting.id }}">Class Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Topic:</strong> {{ meeting.topic }}</p>
+                        <p><strong>Program:</strong> {{ meeting.program.name }}</p>
+                        <p><strong>Teacher:</strong> {{ meeting.teacher.get_full_name }}</p>
+                        <p><strong>Date & Time:</strong> {{ meeting.start_time|date:"F j, Y, g:i a" }}</p>
+                        <p><strong>Duration:</strong> {{ meeting.duration }} minutes</p>
+                        <p><strong>Meeting ID:</strong> {{ meeting.zoom_meeting_id }}</p>
+                        <p><strong>Join URL:</strong> <a href="{{ meeting.join_url }}" target="_blank">{{ meeting.join_url }}</a></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <a href="{{ meeting.join_url }}" target="_blank" class="btn btn-success">Join Class</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No upcoming virtual classes found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

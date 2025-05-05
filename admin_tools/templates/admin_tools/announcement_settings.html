@@ -1,0 +1,93 @@
+{% extends 'authentication/admin/base.html' %}
+{% load static %}
+
+{% block title %}Announcement Settings - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Announcement Settings</h5>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-3">Display Settings</h6>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Default Announcement Status</label>
+                                            <select class="form-select" name="default_status">
+                                                <option value="draft">Draft</option>
+                                                <option value="published">Published</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Announcements per Page</label>
+                                            <input type="number" class="form-control" name="per_page" value="10" min="5" max="50">
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" name="show_author" id="show_author" checked>
+                                            <label class="form-check-label" for="show_author">
+                                                Show Author Information
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-3">Notification Settings</h6>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" name="email_notifications" id="email_notifications" checked>
+                                            <label class="form-check-label" for="email_notifications">
+                                                Send Email Notifications
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" name="in_app_notifications" id="in_app_notifications" checked>
+                                            <label class="form-check-label" for="in_app_notifications">
+                                                Show In-App Notifications
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Notification Delay (minutes)</label>
+                                            <input type="number" class="form-control" name="notification_delay" value="5" min="0" max="60">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any necessary JavaScript here
+});
+</script>
+{% endblock %} 

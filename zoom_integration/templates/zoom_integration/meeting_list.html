@@ -1,0 +1,120 @@
+{% extends 'zoom_integration/base.html' %}
+
+{% block zoom_content %}
+<div class="zoom-section">
+    <div class="section-header">
+        <h2>Virtual Classes</h2>
+        {% if user.is_teacher %}
+        <a href="{% url 'zoom:create_meeting' %}" class="btn btn-primary">Create New Meeting</a>
+        {% endif %}
+    </div>
+
+    <div class="meeting-filters">
+        <div class="filter-group">
+            <label for="program-filter">Filter by Program:</label>
+            <select id="program-filter" class="form-control">
+                <option value="">All Programs</option>
+                {% for program in programs %}
+                <option value="{{ program.id }}">{{ program.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="status-filter">Filter by Status:</label>
+            <select id="status-filter" class="form-control">
+                <option value="">All Status</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="meeting-list">
+        {% for meeting in meetings %}
+        <div class="meeting-card" data-program="{{ meeting.program.id }}" data-status="{{ meeting.status }}">
+            <div class="meeting-header">
+                <div class="meeting-info">
+                    <h3>{{ meeting.topic }}</h3>
+                    <p class="program-name">{{ meeting.program.name }}</p>
+                </div>
+                <div class="meeting-actions">
+                    {% if user.is_teacher %}
+                    <a href="{% url 'zoom:meeting_detail' meeting.id %}" class="btn btn-secondary">View Details</a>
+                    {% if meeting.is_ongoing %}
+                    <button onclick="updateAttendance({{ meeting.id }})" class="btn btn-info">Update Attendance</button>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{{ meeting.join_url }}" target="_blank" class="btn btn-zoom">Join Meeting</a>
+                </div>
+            </div>
+            <div class="meeting-details">
+                <div class="detail-item">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ meeting.start_time|date:"F j, Y, g:i a" }}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span>{{ meeting.duration }} minutes</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-user"></i>
+                    <span>Teacher: {{ meeting.teacher.get_full_name }}</span>
+                </div>
+                {% if meeting.is_recurring %}
+                <div class="detail-item">
+                    <i class="fas fa-sync"></i>
+                    <span>Recurring Meeting</span>
+                </div>
+                {% endif %}
+            </div>
+            {% if meeting.is_ongoing %}
+            <div class="meeting-status ongoing">
+                <i class="fas fa-circle"></i>
+                <span>Ongoing</span>
+            </div>
+            {% elif meeting.is_upcoming %}
+            <div class="meeting-status upcoming">
+                <i class="fas fa-clock"></i>
+                <span>Upcoming</span>
+            </div>
+            {% else %}
+            <div class="meeting-status completed">
+                <i class="fas fa-check-circle"></i>
+                <span>Completed</span>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="no-meetings">
+            <p>No meetings found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const programFilter = document.getElementById('program-filter');
+        const statusFilter = document.getElementById('status-filter');
+        const meetingCards = document.querySelectorAll('.meeting-card');
+
+        function filterMeetings() {
+            const selectedProgram = programFilter.value;
+            const selectedStatus = statusFilter.value;
+
+            meetingCards.forEach(card => {
+                const programMatch = !selectedProgram || card.dataset.program === selectedProgram;
+                const statusMatch = !selectedStatus || card.dataset.status === selectedStatus;
+                card.style.display = programMatch && statusMatch ? 'block' : 'none';
+            });
+        }
+
+        programFilter.addEventListener('change', filterMeetings);
+        statusFilter.addEventListener('change', filterMeetings);
+    });
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,291 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Blog Post - Eduraise{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section bg-gradient-primary text-white py-5 mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">{{ action }} Blog Post</h1>
+                <p class="lead opacity-90">Share your knowledge and insights with our community</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-lg-5">
+                    <form method="post" enctype="multipart/form-data" id="blogPostForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-medium">Title</label>
+                            {{ form.title.errors }}
+                            <input type="text" name="title" id="{{ form.title.id_for_label }}" 
+                                   class="form-control form-control-lg rounded-3 {% if form.title.errors %}is-invalid{% endif %}"
+                                   value="{{ form.title.value|default:'' }}"
+                                   placeholder="Enter your blog post title">
+                        </div>
+
+                        <!-- Featured Image -->
+                        <div class="mb-4">
+                            <label for="{{ form.featured_image.id_for_label }}" class="form-label fw-medium">Featured Image</label>
+                            {{ form.featured_image.errors }}
+                            <div class="input-group">
+                                <input type="file" name="featured_image" id="{{ form.featured_image.id_for_label }}"
+                                       class="form-control rounded-3 {% if form.featured_image.errors %}is-invalid{% endif %}"
+                                       accept="image/*">
+                            </div>
+                            {% if form.instance.featured_image %}
+                            <div class="mt-3">
+                                <div class="position-relative d-inline-block">
+                                    <img src="{{ form.instance.featured_image.url }}" alt="Current featured image" 
+                                         class="rounded-3 img-thumbnail" style="max-height: 200px;">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Excerpt -->
+                        <div class="mb-4">
+                            <label for="{{ form.excerpt.id_for_label }}" class="form-label fw-medium">Excerpt</label>
+                            {{ form.excerpt.errors }}
+                            <textarea name="excerpt" id="{{ form.excerpt.id_for_label }}"
+                                      class="form-control rounded-3 {% if form.excerpt.errors %}is-invalid{% endif %}"
+                                      rows="3" placeholder="Write a brief summary of your post">{{ form.excerpt.value|default:'' }}</textarea>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="mb-4">
+                            <label for="{{ form.content.id_for_label }}" class="form-label fw-medium">Content</label>
+                            {{ form.content.errors }}
+                            <textarea name="content" id="{{ form.content.id_for_label }}"
+                                      class="form-control rounded-3 {% if form.content.errors %}is-invalid{% endif %}"
+                                      rows="15" placeholder="Write your blog post content here">{{ form.content.value|default:'' }}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <!-- Categories -->
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.categories.id_for_label }}" class="form-label fw-medium">Categories</label>
+                                {{ form.categories.errors }}
+                                <select name="categories" id="{{ form.categories.id_for_label }}"
+                                        class="form-select rounded-3 {% if form.categories.errors %}is-invalid{% endif %}"
+                                        multiple>
+                                    {{ form.categories }}
+                                </select>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.status.id_for_label }}" class="form-label fw-medium">Status</label>
+                                {{ form.status.errors }}
+                                <select name="status" id="{{ form.status.id_for_label }}"
+                                        class="form-select rounded-3 {% if form.status.errors %}is-invalid{% endif %}">
+                                    {{ form.status }}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- SEO Section -->
+                        <div class="card border bg-light rounded-4 mb-4">
+                            <div class="card-header bg-transparent border-0 pt-4 px-4">
+                                <h5 class="mb-0 fw-bold">SEO Settings</h5>
+                            </div>
+                            <div class="card-body px-4">
+                                <!-- Meta Title -->
+                                <div class="mb-3">
+                                    <label for="{{ form.meta_title.id_for_label }}" class="form-label fw-medium">Meta Title</label>
+                                    {{ form.meta_title.errors }}
+                                    <input type="text" name="meta_title" id="{{ form.meta_title.id_for_label }}"
+                                           class="form-control rounded-3 {% if form.meta_title.errors %}is-invalid{% endif %}"
+                                           value="{{ form.meta_title.value|default:'' }}"
+                                           placeholder="Enter meta title for SEO">
+                                </div>
+
+                                <!-- Meta Description -->
+                                <div class="mb-3">
+                                    <label for="{{ form.meta_description.id_for_label }}" class="form-label fw-medium">Meta Description</label>
+                                    {{ form.meta_description.errors }}
+                                    <textarea name="meta_description" id="{{ form.meta_description.id_for_label }}"
+                                              class="form-control rounded-3 {% if form.meta_description.errors %}is-invalid{% endif %}"
+                                              rows="2" placeholder="Enter meta description for SEO">{{ form.meta_description.value|default:'' }}</textarea>
+                                </div>
+
+                                <!-- Meta Keywords -->
+                                <div class="mb-0">
+                                    <label for="{{ form.meta_keywords.id_for_label }}" class="form-label fw-medium">Meta Keywords</label>
+                                    {{ form.meta_keywords.errors }}
+                                    <input type="text" name="meta_keywords" id="{{ form.meta_keywords.id_for_label }}"
+                                           class="form-control rounded-3 {% if form.meta_keywords.errors %}is-invalid{% endif %}"
+                                           value="{{ form.meta_keywords.value|default:'' }}"
+                                           placeholder="Enter meta keywords, separated by commas">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'blog:blog_list' %}" class="btn btn-light rounded-3 px-4">Cancel</a>
+                            <div>
+                                <button type="submit" name="save_draft" class="btn btn-outline-primary rounded-3 px-4 me-2">
+                                    Save as Draft
+                                </button>
+                                <button type="submit" name="publish" class="btn btn-primary rounded-3 px-4">
+                                    Publish Post
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+    .note-editor {
+        background-color: white;
+        border-radius: 0.75rem !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    .note-editor .note-toolbar {
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        padding: 0.5rem !important;
+        background-color: #f8f9fa !important;
+    }
+    .note-editor .note-statusbar {
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(0, 195, 154, 0.15);
+    }
+    .form-control, .form-select {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease-in-out;
+    }
+    .form-control:hover, .form-select:hover {
+        border-color: var(--primary-color);
+    }
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        transform: translateY(-1px);
+    }
+    .card {
+        transition: all 0.2s ease-in-out;
+    }
+    .opacity-90 {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Summernote rich text editor with custom styling
+    $('#{{ form.content.id_for_label }}').summernote({
+        height: 400,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        callbacks: {
+            onImageUpload: function(files) {
+                // You can implement image upload functionality here
+                console.log('Image upload triggered');
+            }
+        },
+        styleTags: [
+            'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+        ],
+        popover: {
+            image: [
+                ['imagesize', ['imageSize100', 'imageSize50', 'imageSize25']],
+                ['float', ['floatLeft', 'floatRight', 'floatNone']],
+                ['remove', ['removeMedia']]
+            ]
+        }
+    });
+
+    // Form validation with improved UX
+    const form = document.getElementById('blogPostForm');
+    form.addEventListener('submit', function(event) {
+        const title = document.getElementById('{{ form.title.id_for_label }}').value.trim();
+        const content = $('#{{ form.content.id_for_label }}').summernote('code').trim();
+        
+        if (!title) {
+            event.preventDefault();
+            const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+            titleInput.classList.add('is-invalid');
+            titleInput.focus();
+            alert('Please enter a title for your blog post.');
+            return;
+        }
+        
+        if (!content || content === '<p><br></p>') {
+            event.preventDefault();
+            $('#{{ form.content.id_for_label }}').summernote('focus');
+            alert('Please enter some content for your blog post.');
+            return;
+        }
+    });
+
+    // Remove invalid state on input
+    const inputs = form.querySelectorAll('.form-control, .form-select');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
+});
+</script>
+{% endblock %} 

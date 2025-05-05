@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" version="1.1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+ <rect width="200" height="200" fill="#f8f9fa"/>
+ <g transform="translate(100,80)" fill="#adb5bd">
+  <!-- Head -->
+  <circle cx="0" cy="0" r="40"/>
+  <!-- Body -->
+  <path d="M -40,50 A 40,40 0 0 0 40,50 L 40,100 L -40,100 Z"/>
+ </g>
+</svg> 

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Avatar{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Upload Avatar</h4>
+                </div>
+                <div class="card-body">
+                    {% if profile.avatar %}
+                        <div class="text-center mb-4">
+                            <img src="{{ profile.avatar.url }}" alt="Current Avatar" class="img-fluid rounded-circle" style="max-width: 200px;">
+                            <p class="text-muted mt-2">Current Avatar</p>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.avatar.id_for_label }}" class="form-label">Choose New Avatar</label>
+                            {{ form.avatar }}
+                            {% if form.avatar.help_text %}
+                                <div class="form-text">{{ form.avatar.help_text }}</div>
+                            {% endif %}
+                            {% if form.avatar.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.avatar.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Upload Avatar</button>
+                            <a href="{% url 'profiles:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

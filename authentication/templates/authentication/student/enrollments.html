@@ -1,0 +1,163 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}My Courses - EduRise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'auth:student_enrollments' %}">
+                            <i class="fas fa-book"></i> My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:student_assignments' %}">
+                            <i class="fas fa-tasks"></i> Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:student_certificates' %}">
+                            <i class="fas fa-certificate"></i> Certificates
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">My Courses</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'programs:program_list' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Enroll in New Course
+                    </a>
+                </div>
+            </div>
+
+            {% if enrollments %}
+            <div class="row">
+                {% for enrollment in enrollments %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        {% if enrollment.course.thumbnail %}
+                        <img src="{{ enrollment.course.thumbnail.url }}" class="card-img-top" alt="{{ enrollment.course.title }}">
+                        {% else %}
+                        <div class="card-img-top bg-light text-center py-5">
+                            <i class="fas fa-book fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ enrollment.course.title }}</h5>
+                            <p class="card-text text-muted">
+                                <small>
+                                    <i class="fas fa-user-tie"></i> {{ enrollment.course.instructor.get_full_name }}
+                                </small>
+                            </p>
+                            <div class="progress mb-3">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ enrollment.progress_percentage }}%"
+                                     aria-valuenow="{{ enrollment.progress_percentage }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ enrollment.progress_percentage }}%
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-{{ enrollment.status|lower }}">
+                                    {{ enrollment.get_status_display }}
+                                </span>
+                                <a href="{% url 'programs:program_detail' enrollment.course.id %}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    Continue Learning
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-4x text-muted mb-3"></i>
+                <h3>No Enrollments Yet</h3>
+                <p class="text-muted">Browse our courses and start learning today!</p>
+                <a href="{% url 'programs:program_list' %}" class="btn btn-primary">
+                    Browse Programs
+                </a>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+        padding: 0.5rem 1rem;
+    }
+
+    .sidebar .nav-link.active {
+        color: #2470dc;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #2470dc;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .progress {
+        height: 0.5rem;
+    }
+
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.35em 0.65em;
+    }
+
+    .bg-pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .bg-approved {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .bg-completed {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+{% endblock %} 

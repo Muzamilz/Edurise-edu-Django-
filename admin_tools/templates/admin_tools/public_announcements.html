@@ -1,0 +1,108 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Announcements - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar with Categories -->
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Categories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'admin_tools:public_announcements' %}" 
+                       class="list-group-item list-group-item-action {% if not request.GET.category %}active{% endif %}">
+                        All Announcements
+                    </a>
+                    {% for category in categories %}
+                    <a href="{% url 'admin_tools:public_announcements' %}?category={{ category.name }}" 
+                       class="list-group-item list-group-item-action {% if request.GET.category == category.name %}active{% endif %}">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Search Bar -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="get" class="d-flex gap-2">
+                        {% if request.GET.category %}
+                        <input type="hidden" name="category" value="{{ request.GET.category }}">
+                        {% endif %}
+                        <input type="text" name="search" class="form-control" placeholder="Search announcements..." 
+                               value="{{ request.GET.search|default:'' }}">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        {% if request.GET.search or request.GET.category %}
+                        <a href="{% url 'admin_tools:public_announcements' %}" class="btn btn-outline-secondary">Clear</a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <!-- Announcements List -->
+            {% if announcements %}
+            <div class="announcements">
+                {% for announcement in announcements %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">{{ announcement.title }}</h5>
+                        <span class="badge {% if announcement.priority == 'high' %}bg-danger{% elif announcement.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %}">
+                            {{ announcement.priority|title }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="announcement-meta text-muted mb-3">
+                            <small>
+                                <i class="fas fa-folder me-1"></i> {{ announcement.category.name }} |
+                                <i class="fas fa-calendar me-1"></i> {{ announcement.created_at|date:"M d, Y" }} |
+                                <i class="fas fa-user me-1"></i> {{ announcement.created_by.get_full_name }}
+                            </small>
+                        </div>
+                        <div class="announcement-content">
+                            {{ announcement.content|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if announcements.has_other_pages %}
+                <nav aria-label="Announcements pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if announcements.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ announcements.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">&laquo;</a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in announcements.paginator.page_range %}
+                        <li class="page-item {% if announcements.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if announcements.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ announcements.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">&raquo;</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> No announcements found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,49 @@
+{% extends 'classes/base.html' %}
+
+{% block class_content %}
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">My Classes</h4>
+        
+        {% if classes %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Course</th>
+                            <th>Start Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class in classes %}
+                        <tr>
+                            <td>{{ class.title }}</td>
+                            <td>{{ class.course.title }}</td>
+                            <td>{{ class.start_time|date:"F j, Y, g:i a" }}</td>
+                            <td>
+                                <span class="badge {% if class.status == 'scheduled' %}bg-primary{% elif class.status == 'in_progress' %}bg-warning{% elif class.status == 'completed' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ class.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'classes:class_detail' class.id %}" class="btn btn-sm btn-primary">View</a>
+                                {% if class.status == 'scheduled' and user.role == 'teacher' %}
+                                <a href="{% url 'classes:track_attendance' class.id %}" class="btn btn-sm btn-info">Track Attendance</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No classes found.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,70 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Edit Program - Eduraise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h1 class="h4 mb-0">Edit Program</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Program Title</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ program.title }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="5" required>{{ program.description }}</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="program_type" class="form-label">Program Type</label>
+                                <select class="form-select" id="program_type" name="program_type" required>
+                                    <option value="">Select Program Type</option>
+                                    <option value="regular_english" {% if program.program_type == 'regular_english' %}selected{% endif %}>Regular English</option>
+                                    <option value="plus_english" {% if program.program_type == 'plus_english' %}selected{% endif %}>Plus English</option>
+                                    <option value="ielts" {% if program.program_type == 'ielts' %}selected{% endif %}>IELTS</option>
+                                    <option value="toefl" {% if program.program_type == 'toefl' %}selected{% endif %}>TOEFL</option>
+                                    <option value="business_english" {% if program.program_type == 'business_english' %}selected{% endif %}>Business English</option>
+                                    <option value="esp" {% if program.program_type == 'esp' %}selected{% endif %}>ESP</option>
+                                    <option value="eap" {% if program.program_type == 'eap' %}selected{% endif %}>EAP</option>
+                                    <option value="non_english" {% if program.program_type == 'non_english' %}selected{% endif %}>Non-English</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="level" class="form-label">Level</label>
+                                <select class="form-select" id="level" name="level" required>
+                                    <option value="">Select Level</option>
+                                    <option value="beginner" {% if program.level == 'beginner' %}selected{% endif %}>Beginner</option>
+                                    <option value="intermediate" {% if program.level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                                    <option value="advanced" {% if program.level == 'advanced' %}selected{% endif %}>Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="duration" class="form-label">Duration (weeks)</label>
+                                <input type="number" class="form-control" id="duration" name="duration" value="{{ program.duration }}" min="1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="price" class="form-label">Price ($)</label>
+                                <input type="number" class="form-control" id="price" name="price" value="{{ program.price }}" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'programs:program_detail' program_id=program.id %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,113 @@
+{% extends 'zoom_integration/base.html' %}
+
+{% block zoom_content %}
+<div class="zoom-section">
+    <div class="section-header">
+        <h2>Program Analytics: {{ program.name }}</h2>
+        <button onclick="updateAnalytics()" class="btn btn-primary">Update Analytics</button>
+    </div>
+
+    <div class="analytics-overview">
+        <div class="analytics-card">
+            <h3>Today's Overview</h3>
+            <div class="analytics-stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{ today_stats.total_meetings }}</div>
+                    <div class="stat-label">Total Meetings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ today_stats.total_participants }}</div>
+                    <div class="stat-label">Total Participants</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ today_stats.average_duration }} min</div>
+                    <div class="stat-label">Average Duration</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ today_stats.total_attendance }}</div>
+                    <div class="stat-label">Total Attendance</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-history">
+        <h3>Historical Data</h3>
+        <div class="analytics-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Meetings</th>
+                        <th>Participants</th>
+                        <th>Avg Duration</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in analytics %}
+                    <tr>
+                        <td>{{ stat.date|date:"F j, Y" }}</td>
+                        <td>{{ stat.total_meetings }}</td>
+                        <td>{{ stat.total_participants }}</td>
+                        <td>{{ stat.average_duration }} min</td>
+                        <td>{{ stat.total_attendance }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No historical data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="teacher-performance">
+        <h3>Teacher Performance</h3>
+        <div class="teacher-stats">
+            {% for teacher in program.teachers.all %}
+            <div class="teacher-card">
+                <div class="teacher-info">
+                    <h4>{{ teacher.get_full_name }}</h4>
+                    <div class="teacher-metrics">
+                        <div class="metric">
+                            <span class="metric-value">{{ teacher.total_meetings }}</span>
+                            <span class="metric-label">Meetings</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">{{ teacher.average_attendance }}%</span>
+                            <span class="metric-label">Attendance</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">{{ teacher.average_duration }} min</span>
+                            <span class="metric-label">Avg Duration</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    function updateAnalytics() {
+        fetch('{% url "zoom:update_analytics" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}
+{% endblock %} 

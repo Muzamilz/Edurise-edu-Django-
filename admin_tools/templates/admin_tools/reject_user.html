@@ -1,0 +1,56 @@
+{% extends 'admin_tools/base.html' %}
+{% load static %}
+
+{% block title %}Reject User - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 col-xl-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Reject User Registration</h5>
+                    <p class="text-muted mb-0">Review and reject user registration request</p>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6>User Details:</h6>
+                        <dl class="row">
+                            <dt class="col-sm-3">Username:</dt>
+                            <dd class="col-sm-9">{{ user.username }}</dd>
+                            
+                            <dt class="col-sm-3">Email:</dt>
+                            <dd class="col-sm-9">{{ user.email }}</dd>
+                            
+                            <dt class="col-sm-3">Name:</dt>
+                            <dd class="col-sm-9">{{ user.get_full_name }}</dd>
+                            
+                            <dt class="col-sm-3">Role:</dt>
+                            <dd class="col-sm-9">{{ user.role }}</dd>
+                            
+                            <dt class="col-sm-3">Date Joined:</dt>
+                            <dd class="col-sm-9">{{ user.date_joined }}</dd>
+                        </dl>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Warning: This action cannot be undone. Are you sure you want to reject this user's registration?
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_tools:user_management' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Users
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-times me-2"></i>Reject User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

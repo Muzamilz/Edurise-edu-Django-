@@ -1,0 +1,235 @@
+{% extends 'admin_tools/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold section-title mb-0">Admin Dashboard</h2>
+        <div>
+            <a href="{% url 'admin_tools:user_management' %}" class="btn btn-success me-2"><i class="fas fa-users me-1"></i> Manage Users</a>
+            <a href="{% url 'programs:create_program' %}" class="btn btn-primary me-2"><i class="fas fa-plus me-1"></i> New Program</a>
+            <a href="{% url 'admin_tools:faq_management' %}" class="btn btn-outline-success"><i class="fas fa-question-circle me-1"></i> FAQ Management</a>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small mb-1">Total Programs</div>
+                        <div class="fs-3 fw-bold">{{ total_programs|default:'0' }}</div>
+                    </div>
+                    <div class="bg-light rounded-3 p-3 ms-2">
+                        <i class="fas fa-graduation-cap fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small mb-1">Active Students</div>
+                        <div class="fs-3 fw-bold">{{ active_students|default:'0' }}</div>
+                    </div>
+                    <div class="bg-light rounded-3 p-3 ms-2">
+                        <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small mb-1">Upcoming Classes</div>
+                        <div class="fs-3 fw-bold">{{ upcoming_classes|length|default:'0' }}</div>
+                    </div>
+                    <div class="bg-light rounded-3 p-3 ms-2">
+                        <i class="fas fa-video fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small mb-1">Active Meetings</div>
+                        <div class="fs-3 fw-bold">{{ active_meetings|default:'0' }}</div>
+                    </div>
+                    <div class="bg-light rounded-3 p-3 ms-2">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <h5 class="fw-bold mb-3">Quick Actions</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="mb-2 fw-bold text-success">Program Management</div>
+                    <a href="{% url 'programs:program_list' %}" class="btn btn-outline-success w-100 mb-2"><i class="fas fa-list me-2"></i>All Programs</a>
+                    <a href="{% url 'programs:create_program' %}" class="btn btn-outline-success w-100 mb-2"><i class="fas fa-plus me-2"></i>Create Program</a>
+                    <a href="{% url 'programs:regular_english' %}" class="btn btn-outline-success w-100 mb-2"><i class="fas fa-book me-2"></i>Regular English</a>
+                    <a href="{% url 'programs:plus_english' %}" class="btn btn-outline-success w-100 mb-2"><i class="fas fa-cubes me-2"></i>Plus English</a>
+                    <a href="{% url 'programs:esp' %}" class="btn btn-outline-success w-100 mb-2"><i class="fas fa-tasks me-2"></i>ESP Programs</a>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-2 fw-bold text-primary">Virtual Classes</div>
+                    <a href="{% url 'zoom:meeting_list' %}" class="btn btn-outline-primary w-100 mb-2"><i class="fas fa-list me-2"></i>All Meetings</a>
+                    <a href="{% url 'zoom:create_meeting' %}" class="btn btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-2"></i>Create Meeting</a>
+                    <a href="{% url 'zoom:template_list' %}" class="btn btn-outline-primary w-100 mb-2"><i class="fas fa-copy me-2"></i>Meeting Templates</a>
+                    <a href="{% url 'zoom:create_template' %}" class="btn btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-2"></i>Create Meeting Template</a>
+                    <a href="{% url 'zoom:bulk_schedule_list' %}" class="btn btn-outline-primary w-100 mb-2"><i class="fas fa-calendar-alt me-2"></i>Bulk Schedule</a>
+                    <a href="{% url 'zoom:create_bulk_schedule' %}" class="btn btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-2"></i>Create Bulk Schedule</a>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-2 fw-bold text-warning">Announcements & FAQs</div>
+                    <a href="{% url 'admin_tools:announcement_list' %}" class="btn btn-outline-warning w-100 mb-2"><i class="fas fa-bullhorn me-2"></i>Manage Announcements</a>
+                    <a href="{% url 'admin_tools:create_announcement' %}" class="btn btn-outline-warning w-100 mb-2"><i class="fas fa-plus me-2"></i>Create Announcement</a>
+                    <a href="{% url 'admin_tools:announcement_categories' %}" class="btn btn-outline-warning w-100 mb-2"><i class="fas fa-tags me-2"></i>Announcement Categories</a>
+                    <a href="{% url 'admin_tools:announcement_settings' %}" class="btn btn-outline-warning w-100 mb-2"><i class="fas fa-cog me-2"></i>Announcement Settings</a>
+                    <a href="{% url 'admin_tools:faq_management' %}" class="btn btn-outline-warning w-100 mb-2"><i class="fas fa-question-circle me-2"></i>FAQ Management</a>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-2 fw-bold text-info">Blog Management</div>
+                    <a href="{% url 'blog:post_list' %}" class="btn btn-outline-info w-100 mb-2"><i class="fas fa-list me-2"></i>All Posts</a>
+                    <a href="{% url 'blog:create_post' %}" class="btn btn-outline-info w-100 mb-2"><i class="fas fa-plus me-2"></i>Create Post</a>
+                    <a href="{% url 'blog:category_list' %}" class="btn btn-outline-info w-100 mb-2"><i class="fas fa-tags me-2"></i>Categories</a>
+                    <a href="{% url 'blog:comment_list' %}" class="btn btn-outline-info w-100 mb-2"><i class="fas fa-comments me-2"></i>Comments</a>
+                </div>
+            </div>
+            <div class="row g-3 mt-3">
+                <div class="col-md-4">
+                    <div class="mb-2 fw-bold text-info">Analytics</div>
+                    <a href="{% url 'admin_tools:analytics_dashboard' %}" class="btn btn-outline-info w-100 mb-2"><i class="fas fa-chart-line me-2"></i>Analytics Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 h-100 mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Active Programs</h5>
+                    {% if active_programs_list %}
+                    <div class="list-group">
+                        {% for program in active_programs_list %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ program.title }}</h6>
+                                    <p class="mb-1">{{ program.description|truncatechars:100 }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ program.instructor.get_full_name }} •
+                                        <i class="fas fa-users me-1"></i>{{ program.students.count }} students •
+                                        <i class="fas fa-clock me-1"></i>{{ program.duration }}
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="{% url 'programs:program_detail' program.id %}" class="btn btn-sm btn-primary me-2"><i class="fas fa-eye"></i></a>
+                                    <a href="{% url 'programs:edit_program' program.id %}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <span class="display-3 text-muted mb-2"><i class="fas fa-graduation-cap"></i></span>
+                        <div class="text-muted">No active programs</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Recent Activity</h5>
+                    <ul class="list-unstyled mb-0">
+                        {% for activity in recent_activities %}
+                        <li class="mb-3">
+                            <span class="badge bg-light text-{{ activity.type }} me-2">{{ activity.action }}</span>
+                            <span>{{ activity.description|safe }}</span>
+                            <div class="text-muted small">{{ activity.timestamp|timesince }} ago</div>
+                        </li>
+                        {% empty %}
+                        <li class="text-muted">No recent activity</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="fw-bold mb-3">Analytics Overview</h5>
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <div class="fw-bold mb-2">Program Enrollment</div>
+                    <div class="text-muted" style="height:120px;">[Program Enrollment Chart Placeholder]</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <div class="fw-bold mb-2">Student Progress</div>
+                    <div class="text-muted" style="height:120px;">[Student Progress Chart Placeholder]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="fw-bold mb-3">Performance Metrics</h5>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body text-center">
+                    <div class="fw-bold mb-2">Enrollment Rate</div>
+                    <div class="fs-4 text-success">{{ enrollment_rate|default:'--' }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body text-center">
+                    <div class="fw-bold mb-2">Completion Rate</div>
+                    <div class="fs-4 text-info">{{ completion_rate|default:'--' }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body text-center">
+                    <div class="fw-bold mb-2">Average Rating</div>
+                    <div class="fs-4 text-warning">{{ avg_rating|default:'--' }}/5</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body text-center">
+                    <div class="fw-bold mb-2">Total Revenue</div>
+                    <div class="fs-4 text-success">${{ total_revenue|default:'0' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Placeholder for future dashboard JS (charts, etc.)
+</script>
+{% endblock %} 

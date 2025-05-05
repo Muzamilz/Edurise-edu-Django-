@@ -1,0 +1,35 @@
+{% extends 'authentication/base.html' %}
+
+{% block title %}Programs - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Available Programs</h2>
+    
+    <div class="row mt-4">
+        {% for program in programs %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ program.get_level_display }} Program</h5>
+                    <p class="card-text">
+                        Explore our {{ program.get_level_display }} level courses designed to help you 
+                        achieve your language learning goals.
+                    </p>
+                    <a href="{% url 'enrollments:course_list' %}?level={{ program.level }}" 
+                       class="btn btn-primary">
+                        View Courses
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No programs available at the moment.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

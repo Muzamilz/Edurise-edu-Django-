@@ -1,0 +1,91 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Join as Teacher - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="mb-4 text-center">Join as Teacher</h2>
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="id_first_name" class="form-label">First Name</label>
+                                {% render_field form.first_name class="form-control" placeholder="Enter your first name" %}
+                                {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_last_name" class="form-label">Last Name</label>
+                                {% render_field form.last_name class="form-control" placeholder="Enter your last name" %}
+                                {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3 mt-3">
+                            <label for="id_email" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                {% render_field form.email class="form-control" placeholder="you@example.com" %}
+                            </div>
+                            <div class="form-text">We'll never share your email with anyone else.</div>
+                            {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="id_password1" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    {% render_field form.password1 class="form-control" placeholder="Create a password" %}
+                                </div>
+                                <div class="form-text">At least 8 characters, with a number and a letter.</div>
+                                {% if form.password1.errors %}<div class="invalid-feedback d-block">{{ form.password1.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_password2" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    {% render_field form.password2 class="form-control" placeholder="Repeat your password" %}
+                                </div>
+                                {% if form.password2.errors %}<div class="invalid-feedback d-block">{{ form.password2.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3 mt-3">
+                            <label for="id_education" class="form-label">Education</label>
+                            {% render_field form.education class="form-control" placeholder="Your highest degree or qualification" %}
+                            {% if form.education.errors %}<div class="invalid-feedback d-block">{{ form.education.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_experience" class="form-label">Experience</label>
+                            {% render_field form.experience class="form-control" placeholder="Years of teaching or relevant experience" %}
+                            {% if form.experience.errors %}<div class="invalid-feedback d-block">{{ form.experience.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_expertise" class="form-label">Expertise</label>
+                            {% render_field form.expertise class="form-control" placeholder="Subjects or areas of expertise" %}
+                            <div class="form-text">E.g. Mathematics, Physics, English Literature</div>
+                            {% if form.expertise.errors %}<div class="invalid-feedback d-block">{{ form.expertise.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_cv" class="form-label">Upload CV</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
+                                {% render_field form.cv class="form-control" %}
+                            </div>
+                            <div class="form-text">PDF, DOC, or DOCX. Max 2MB.</div>
+                            {% if form.cv.errors %}<div class="invalid-feedback d-block">{{ form.cv.errors.0 }}</div>{% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 mt-3">Register as Teacher</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

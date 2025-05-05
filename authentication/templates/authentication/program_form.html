@@ -1,0 +1,51 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - Edurise{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="row w-100 justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 text-center">
+                    <h3 class="mb-0" style="color: #9acb5c;">{{ page_title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="programForm" novalidate>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>{% if program %}Update{% else %}Create{% endif %} Program
+                            </button>
+                            <a href="{% url 'auth:programs' %}" class="btn btn-outline-secondary ms-2 px-4">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control, .form-select {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease-in-out;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(154, 203, 92, 0.15);
+    }
+    .form-control:hover, .form-select:hover {
+        border-color: var(--primary-color);
+    }
+    textarea.form-control {
+        min-height: 120px;
+    }
+</style>
+{% endblock %} 

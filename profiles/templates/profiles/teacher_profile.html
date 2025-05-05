@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Profile - {{ teacher_profile.profile.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Teacher Info Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                {% if teacher_profile.profile.avatar %}
+                    <img src="{{ teacher_profile.profile.avatar.url }}" class="card-img-top" alt="Teacher Avatar">
+                {% else %}
+                    <div class="card-img-top bg-secondary text-white text-center py-5">
+                        <i class="fas fa-chalkboard-teacher fa-4x"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ teacher_profile.profile.user.get_full_name }}</h5>
+                    <p class="card-text text-muted">{{ teacher_profile.specialization }}</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'profiles:edit_teacher_profile' %}" class="btn btn-primary">Edit Teacher Profile</a>
+                        <a href="{% url 'profiles:profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+                    </div>
+                </div>
+            </div>
+
+            {% if teacher_profile.hourly_rate %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Hourly Rate</h6>
+                    <p class="card-text h4">${{ teacher_profile.hourly_rate }}/hour</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Teacher Details -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Teaching Information</h4>
+                    
+                    <div class="mb-4">
+                        <h6 class="text-muted">Teaching Experience</h6>
+                        <p>{{ teacher_profile.teaching_experience }} years</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Qualifications</h6>
+                        <p>{{ teacher_profile.qualifications|linebreaks }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Subjects</h6>
+                        <ul class="list-unstyled">
+                            {% for subject in teacher_profile.subjects %}
+                                <li><i class="fas fa-book me-2"></i>{{ subject }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Teaching Style</h6>
+                        <p>{{ teacher_profile.teaching_style }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Availability</h6>
+                        <ul class="list-unstyled">
+                            {% for day, hours in teacher_profile.availability.items %}
+                                <li><strong>{{ day }}:</strong> {{ hours }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

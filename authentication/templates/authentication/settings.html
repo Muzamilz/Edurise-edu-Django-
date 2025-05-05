@@ -1,0 +1,92 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Settings - EduRise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Settings</h1>
+    <p>This is your settings page. Add your settings form or options here.</p>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .list-group-item {
+        border: none;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+    .list-group-item:hover {
+        background-color: rgba(154, 203, 92, 0.1);
+        color: var(--primary-color);
+    }
+    .list-group-item.active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(154, 203, 92, 0.15);
+    }
+    .form-control, .form-select {
+        border: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease-in-out;
+    }
+    .form-control:hover, .form-select:hover {
+        border-color: var(--primary-color);
+    }
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password validation
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordForm = document.querySelector('#security form');
+
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(event) {
+            if (newPassword.value !== confirmPassword.value) {
+                event.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+    }
+
+    // File input preview
+    const profilePicture = document.getElementById('profilePicture');
+    if (profilePicture) {
+        profilePicture.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.querySelector('.rounded-circle');
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,92 @@
+{% extends 'zoom_integration/base.html' %}
+
+{% block zoom_content %}
+<div class="zoom-section">
+    <div class="section-header">
+        <h2>Meeting Details</h2>
+        <div class="header-actions">
+            <a href="{{ meeting.join_url }}" target="_blank" class="btn btn-zoom">Join Meeting</a>
+            {% if user.is_teacher and meeting.is_ongoing %}
+            <button onclick="updateAttendance({{ meeting.id }})" class="btn btn-info">Update Attendance</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="meeting-details">
+        <div class="detail-card">
+            <h3>Meeting Information</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Topic</label>
+                    <span>{{ meeting.topic }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Program</label>
+                    <span>{{ meeting.program.name }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Teacher</label>
+                    <span>{{ meeting.teacher.get_full_name }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Start Time</label>
+                    <span>{{ meeting.start_time|date:"F j, Y, g:i a" }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Duration</label>
+                    <span>{{ meeting.duration }} minutes</span>
+                </div>
+                {% if meeting.is_recurring %}
+                <div class="detail-item">
+                    <label>Recurrence</label>
+                    <span>Recurring Meeting</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if user.is_teacher %}
+        <div class="attendance-card">
+            <h3>Attendance</h3>
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Join Time</th>
+                        <th>Leave Time</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance %}
+                    <tr>
+                        <td>{{ record.student.get_full_name }}</td>
+                        <td>{{ record.join_time|date:"g:i a" }}</td>
+                        <td>{{ record.leave_time|date:"g:i a"|default:"-" }}</td>
+                        <td>{{ record.duration|default:"-" }} min</td>
+                        <td>
+                            <span class="status-badge status-{{ record.status }}">
+                                {{ record.status|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No attendance records yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <div class="meeting-actions">
+            <a href="{% url 'zoom:meeting_list' %}" class="btn btn-secondary">Back to Meetings</a>
+            {% if user.is_teacher %}
+            <a href="{% url 'zoom:program_analytics' meeting.program.id %}" class="btn btn-info">View Program Analytics</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

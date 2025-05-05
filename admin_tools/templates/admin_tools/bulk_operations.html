@@ -1,0 +1,219 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+{% load admin_filters %}
+
+{% block title %}Bulk User Operations - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Bulk User Operations</h5>
+                    
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" id="bulkOperationsForm">
+                        {% csrf_token %}
+                        
+                        <!-- User Selection -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Select Users</h6>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">Select All</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">Deselect All</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;">
+                                                <input type="checkbox" class="form-check-input" id="selectAll">
+                                            </th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Last Login</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="user_ids" value="{{ user.id }}" class="form-check-input user-checkbox">
+                                            </td>
+                                            <td>{{ user.username }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>
+                                                <span class="badge {% if user.role %}{{ user.role|role_color }}{% else %}bg-secondary{% endif %}">
+                                                    {{ user.role|default:"No Role" }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {{ user.is_active|yesno:"Active,Inactive" }}
+                                                </span>
+                                            </td>
+                                            <td>{{ user.last_login|default:"Never" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No users found.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Operations -->
+                        <div class="mb-4">
+                            <h6 class="mb-3">Select Operation</h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="operation" id="activate" value="activate">
+                                        <label class="form-check-label" for="activate">
+                                            <i class="fas fa-user-check text-success me-2"></i>Activate Users
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="operation" id="deactivate" value="deactivate">
+                                        <label class="form-check-label" for="deactivate">
+                                            <i class="fas fa-user-slash text-danger me-2"></i>Deactivate Users
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="operation" id="delete" value="delete">
+                                        <label class="form-check-label" for="delete">
+                                            <i class="fas fa-trash text-danger me-2"></i>Delete Users
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="operation" id="export" value="export">
+                                        <label class="form-check-label" for="export">
+                                            <i class="fas fa-file-export text-primary me-2"></i>Export to CSV
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Form (initially hidden) -->
+                        <div id="emailForm" class="mb-4" style="display: none;">
+                            <h6 class="mb-3">Send Email</h6>
+                            <div class="mb-3">
+                                <label for="email_subject" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="email_subject" name="email_subject">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email_message" class="form-label">Message</label>
+                                <textarea class="form-control" id="email_message" name="email_message" rows="4"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                                <i class="fas fa-check me-2"></i>Execute Operation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('bulkOperationsForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const emailForm = document.getElementById('emailForm');
+    const operationRadios = document.querySelectorAll('input[name="operation"]');
+    const userCheckboxes = document.querySelectorAll('.user-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAll');
+
+    // Handle operation selection
+    operationRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            emailForm.style.display = this.value === 'send_email' ? 'block' : 'none';
+            updateSubmitButton();
+        });
+    });
+
+    // Handle user selection
+    userCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSubmitButton);
+    });
+
+    // Handle select all
+    selectAllCheckbox.addEventListener('change', function() {
+        userCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateSubmitButton();
+    });
+
+    // Update submit button state
+    function updateSubmitButton() {
+        const selectedUsers = document.querySelectorAll('.user-checkbox:checked').length;
+        const selectedOperation = document.querySelector('input[name="operation"]:checked');
+        
+        submitBtn.disabled = !(selectedUsers > 0 && selectedOperation);
+    }
+
+    // Form submission confirmation
+    form.addEventListener('submit', function(e) {
+        const operation = document.querySelector('input[name="operation"]:checked').value;
+        const selectedUsers = document.querySelectorAll('.user-checkbox:checked').length;
+        
+        let message = `Are you sure you want to ${operation} ${selectedUsers} selected user(s)?`;
+        if (operation === 'delete') {
+            message = 'WARNING: This will permanently delete the selected users. This action cannot be undone. Are you sure?';
+        }
+        
+        if (!confirm(message)) {
+            e.preventDefault();
+        }
+    });
+});
+
+function selectAll() {
+    document.getElementById('selectAll').checked = true;
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateSubmitButton();
+}
+
+function deselectAll() {
+    document.getElementById('selectAll').checked = false;
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSubmitButton();
+}
+</script>
+{% endblock %} 

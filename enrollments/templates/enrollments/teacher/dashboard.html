@@ -1,0 +1,311 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Teacher Dashboard - Eduraise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'enrollments:teacher_dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'enrollments:program_list' %}">
+                            <i class="fas fa-book"></i> My Programs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'classes:class_list' %}">
+                            <i class="fas fa-chalkboard-teacher"></i> Classes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'enrollments:teacher_assignments' %}">
+                            <i class="fas fa-tasks"></i> Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'enrollments:teacher_students' %}">
+                            <i class="fas fa-users"></i> Students
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:settings' %}">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Welcome, {{ teacher.get_full_name }}!</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> New Program
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-calendar-plus"></i> Schedule Class
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-tasks"></i> New Assignment
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Metrics Cards -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Students</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                                    {% with last_growth=user_growth|last %}
+                                        <div class="text-xs text-success">+{{ last_growth.count|default:0 }} this month</div>
+                                    {% endwith %}
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Programs</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_programs }}</div>
+                                    <div class="text-xs text-success">{{ completion_rate|floatformat:1 }}% completion</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-book-open fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Courses</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_courses }}</div>
+                                    <div class="text-xs text-info">Enrollment Rate: {{ enrollment_rate|floatformat:1 }}%</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-chalkboard fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Average Rating</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ average_rating|floatformat:1 }}</div>
+                                    <div class="text-xs text-warning">Completion Rate: {{ completion_rate|floatformat:1 }}%</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-star fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Programs Table -->
+            <div class="card mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Your Programs</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-secondary mb-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Filter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Active</a></li>
+                            <li><a class="dropdown-item" href="#">Draft</a></li>
+                            <li><a class="dropdown-item" href="#">Completed</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table table-bordered align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Program</th>
+                                    <th>Enrollments</th>
+                                    <th>Status</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for program in programs %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div>
+                                                <h6 class="mb-0 text-sm">{{ program.title }}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{ program.courses.count }} courses</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-sm font-weight-bold">{{ program.enrollments.count }}</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge bg-{% if program.status == 'active' %}success{% elif program.status == 'completed' %}primary{% else %}secondary{% endif %}">{{ program.status|capfirst }}</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <span class="me-2 text-xs font-weight-bold">{{ program.rating|floatformat:1 }}</span>
+                                            <div>
+                                                <i class="fas fa-star text-warning"></i>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">No programs found.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Upcoming Classes -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Classes</h6>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_classes %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Program</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for class in upcoming_classes %}
+                                    <tr>
+                                        <td>{{ class.title }}</td>
+                                        <td>{{ class.start_time|date:"M d, Y" }}</td>
+                                        <td>{{ class.start_time|date:"H:i" }} - {{ class.end_time|date:"H:i" }}</td>
+                                        <td>{{ class.program.title }}</td>
+                                        <td>
+                                            {% if class.meeting_link %}
+                                                <a href="{{ class.meeting_link }}" class="btn btn-sm btn-success" target="_blank">Join</a>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted my-4">No upcoming classes.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Pending Enrollments -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Pending Enrollments</h6>
+                </div>
+                <div class="card-body">
+                    {% if pending_enrollments %}
+                        <ul class="list-group">
+                            {% for enrollment in pending_enrollments %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ enrollment.student.get_full_name }} - {{ enrollment.program.title }}</span>
+                                <span class="badge bg-warning">Pending</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-center text-muted my-4">No pending enrollments.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Recent Activity -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_activity %}
+                        <ul class="timeline list-unstyled">
+                            {% for activity in recent_activity %}
+                            <li class="timeline-item mb-3">
+                                <i class="{{ activity.icon }} text-primary"></i>
+                                <span class="ms-2">{{ activity.title }}</span>
+                                <div class="text-muted small">{{ activity.date|date:"M d, Y H:i" }}</div>
+                                <div class="text-muted small">{{ activity.description }}</div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-center text-muted my-4">No recent activity.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    min-height: 100vh;
+    border-right: 1px solid #e3e6f0;
+}
+.timeline-item i {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    background: #f8f9fa;
+}
+.border-left-primary { border-left: 4px solid #4e73df !important; }
+.border-left-success { border-left: 4px solid #1cc88a !important; }
+.border-left-info { border-left: 4px solid #36b9cc !important; }
+.border-left-warning { border-left: 4px solid #f6c23e !important; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+{% endblock %} 

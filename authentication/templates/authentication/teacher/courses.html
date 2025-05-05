@@ -1,0 +1,281 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}My Courses - EduRise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'auth:teacher_courses' %}">
+                            <i class="fas fa-book"></i> My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:teacher_students' %}">
+                            <i class="fas fa-users"></i> Students
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:teacher_reviews' %}">
+                            <i class="fas fa-star"></i> Reviews
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">My Courses</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'courses:create_program' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create New Course
+                    </a>
+                </div>
+            </div>
+
+            <!-- Course Tabs -->
+            <ul class="nav nav-tabs mb-4" id="courseTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                        Active <span class="badge bg-primary">{{ active_courses|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="draft-tab" data-bs-toggle="tab" data-bs-target="#draft" type="button" role="tab">
+                        Drafts <span class="badge bg-secondary">{{ draft_courses|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archived" type="button" role="tab">
+                        Archived <span class="badge bg-dark">{{ archived_courses|length }}</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Course Content -->
+            <div class="tab-content" id="courseTabsContent">
+                <!-- Active Courses -->
+                <div class="tab-pane fade show active" id="active" role="tabpanel">
+                    {% if active_courses %}
+                    <div class="row">
+                        {% for course in active_courses %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                {% if course.thumbnail %}
+                                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}">
+                                {% else %}
+                                <div class="card-img-top bg-light text-center py-5">
+                                    <i class="fas fa-book fa-3x text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ course.title }}</h5>
+                                    <p class="card-text text-muted">
+                                        <small>
+                                            <i class="fas fa-users"></i> {{ course.enrollment_count }} students
+                                        </small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="rating">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <span>{{ course.rating|default:"0.0" }}</span>
+                                        </div>
+                                        <div class="btn-group">
+                                            <a href="{% url 'courses:program_detail' course.id %}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                View
+                                            </a>
+                                            <a href="{% url 'courses:edit_program' course.id %}" 
+                                               class="btn btn-outline-secondary btn-sm">
+                                                Edit
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book fa-4x text-muted mb-3"></i>
+                        <h3>No Active Courses</h3>
+                        <p class="text-muted">Create your first course to get started!</p>
+                        <a href="{% url 'courses:create_program' %}" class="btn btn-primary">
+                            Create Course
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Draft Courses -->
+                <div class="tab-pane fade" id="draft" role="tabpanel">
+                    {% if draft_courses %}
+                    <div class="row">
+                        {% for course in draft_courses %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ course.title }}</h5>
+                                    <p class="card-text text-muted">
+                                        <small>Last updated: {{ course.updated_at|date:"F d, Y" }}</small>
+                                    </p>
+                                    <div class="btn-group w-100">
+                                        <a href="{% url 'courses:edit_program' course.id %}" 
+                                           class="btn btn-outline-primary">
+                                            Continue Editing
+                                        </a>
+                                        <button type="button" class="btn btn-outline-success" 
+                                                onclick="publishCourse('{{ course.id }}')">
+                                            Publish
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-edit fa-4x text-muted mb-3"></i>
+                        <h3>No Draft Courses</h3>
+                        <p class="text-muted">Your draft courses will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Archived Courses -->
+                <div class="tab-pane fade" id="archived" role="tabpanel">
+                    {% if archived_courses %}
+                    <div class="row">
+                        {% for course in archived_courses %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ course.title }}</h5>
+                                    <p class="card-text text-muted">
+                                        <small>Archived on: {{ course.archived_at|date:"F d, Y" }}</small>
+                                    </p>
+                                    <div class="btn-group w-100">
+                                        <button type="button" class="btn btn-outline-primary" 
+                                                onclick="restoreCourse('{{ course.id }}')">
+                                            Restore
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                onclick="deleteCourse('{{ course.id }}')">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-archive fa-4x text-muted mb-3"></i>
+                        <h3>No Archived Courses</h3>
+                        <p class="text-muted">Your archived courses will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+        padding: 0.5rem 1rem;
+    }
+
+    .sidebar .nav-link.active {
+        color: #2470dc;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #2470dc;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .nav-tabs .nav-link {
+        color: #6c757d;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #2470dc;
+        font-weight: 500;
+    }
+
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.35em 0.65em;
+    }
+
+    .rating {
+        color: #6c757d;
+    }
+
+    .rating .fa-star {
+        margin-right: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function publishCourse(courseId) {
+        if (confirm('Are you sure you want to publish this course?')) {
+            // Implement course publishing
+            alert('Course publishing functionality will be implemented soon!');
+        }
+    }
+
+    function restoreCourse(courseId) {
+        if (confirm('Are you sure you want to restore this course?')) {
+            // Implement course restoration
+            alert('Course restoration functionality will be implemented soon!');
+        }
+    }
+
+    function deleteCourse(courseId) {
+        if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+            // Implement course deletion
+            alert('Course deletion functionality will be implemented soon!');
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %} 

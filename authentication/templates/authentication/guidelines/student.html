@@ -1,0 +1,138 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Student Guidelines - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">Student Guidelines</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Getting Started</h5>
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item">Complete your profile information</li>
+                        <li class="list-group-item">Select your desired program/course</li>
+                        <li class="list-group-item">Complete the enrollment process</li>
+                        <li class="list-group-item">Access your course materials</li>
+                        <li class="list-group-item">Join your first class</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Class Participation</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Attend all scheduled classes on time
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Complete all assignments before deadlines
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Participate actively in class discussions
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Submit homework through the platform
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Technical Requirements</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Hardware</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-laptop me-2 text-primary"></i> Computer or laptop</li>
+                                <li><i class="fas fa-headphones me-2 text-primary"></i> Headset with microphone</li>
+                                <li><i class="fas fa-video me-2 text-primary"></i> Webcam (recommended)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Software</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-wifi me-2 text-primary"></i> Stable internet connection</li>
+                                <li><i class="fas fa-video me-2 text-primary"></i> Zoom application</li>
+                                <li><i class="fas fa-window-maximize me-2 text-primary"></i> Modern web browser</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Code of Conduct</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                            Respect teachers and fellow students
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                            Maintain professional behavior in class
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                            Submit original work only
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                            Follow platform rules and guidelines
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Support</h5>
+                    <p class="card-text">
+                        If you need any assistance or have questions about the guidelines,
+                        please don't hesitate to contact our support team.
+                    </p>
+                    <a href="{% url 'auth:contact' %}" class="btn btn-outline-primary">Contact Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .list-group-item {
+        border: none;
+        padding: 0.75rem 0;
+    }
+    .list-group-numbered {
+        counter-reset: section;
+    }
+    .list-group-numbered > li::before {
+        content: counters(section, ".") ". ";
+        counter-increment: section;
+        color: #0d6efd;
+        font-weight: bold;
+    }
+    .list-unstyled li {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}

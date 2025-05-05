@@ -1,0 +1,235 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+{% load program_tags %}
+
+{% block title %}{{ program.title }} - Eduraise{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container-fluid bg-primary text-white py-5 mb-5" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">{{ program.title }}</h1>
+                <div class="d-flex align-items-center justify-content-center text-white-50 mb-4">
+                    <img src="{% if program.instructor.profile_picture %}{{ program.instructor.profile_picture.url }}{% else %}{% static 'images/default-avatar.svg' %}{% endif %}" 
+                         alt="{{ program.instructor.get_full_name }}" 
+                         class="rounded-circle me-2"
+                         style="width: 40px; height: 40px; object-fit: cover;">
+                    <div class="text-start">
+                        <p class="mb-0">By {{ program.instructor.get_full_name }}</p>
+                        <small>Last updated {{ program.updated_at|date:"F j, Y" }}</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <span class="badge bg-light text-primary">{{ program.get_program_type_display }}</span>
+                    <span class="badge bg-light text-primary">{{ program.get_level_display }}</span>
+                    <span class="badge bg-light text-primary">{{ program.duration }} weeks</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Program Overview -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">Program Overview</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-clock text-primary me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Duration</h6>
+                                    <p class="mb-0 text-muted">{{ program.duration }} weeks</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users text-primary me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Students</h6>
+                                    <p class="mb-0 text-muted">{{ program.total_enrollments }} enrolled</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-star text-primary me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Rating</h6>
+                                    <p class="mb-0 text-muted">
+                                        {% for i in "12345" %}
+                                        <i class="fas fa-star{% if forloop.counter <= program.average_rating %}{% else %}-o{% endif %}"></i>
+                                        {% endfor %}
+                                        ({{ program.total_ratings }} reviews)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-language text-primary me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Language</h6>
+                                    <p class="mb-0 text-muted">{{ program.language }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Description -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">About This Program</h2>
+                    <div class="program-description">
+                        {{ program.description|safe|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- What You'll Learn -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">What You'll Learn</h2>
+                    <div class="row g-4">
+                        {% for learning_outcome in program.learning_outcomes.all %}
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                                <p class="mb-0">{{ learning_outcome.description }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Curriculum -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">Curriculum</h2>
+                    <div class="accordion" id="curriculumAccordion">
+                        {% for module in program.modules.all %}
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#module{{ module.id }}">
+                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                        <span>{{ module.title }}</span>
+                                        <span class="badge bg-primary ms-2">{{ module.lessons.count }} lessons</span>
+                                    </div>
+                                </button>
+                            </h3>
+                            <div id="module{{ module.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#curriculumAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group list-group-flush">
+                                        {% for lesson in module.lessons.all %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-play-circle text-primary me-3"></i>
+                                                <span>{{ lesson.title }}</span>
+                                            </div>
+                                            <span class="text-muted">{{ lesson.duration }} min</span>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Enrollment Card -->
+            <div class="card mb-4 sticky-top" style="top: 2rem;">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h3 class="h2 mb-0">${{ program.price }}</h3>
+                        <p class="text-muted">One-time payment</p>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {% if user.is_authenticated %}
+                            {% if user in program.enrolled_students.all %}
+                            <button class="btn btn-success" disabled>
+                                <i class="fas fa-check-circle me-2"></i>Enrolled
+                            </button>
+                            {% else %}
+                            <a href="{% url 'enrollments:enroll' program.id %}" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-2"></i>Enroll Now
+                            </a>
+                            {% endif %}
+                        {% else %}
+                        <a href="{% url 'auth:login' %}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Enroll
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="mt-4">
+                        <h5 class="h6 mb-3">This program includes:</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-video text-primary me-2"></i>
+                                {{ program.total_lessons }} lessons
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                {{ program.total_duration }} hours of content
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-certificate text-primary me-2"></i>
+                                Certificate of completion
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-infinity text-primary me-2"></i>
+                                Lifetime access
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructor Card -->
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="h5 mb-4">About the Instructor</h3>
+                    <div class="text-center mb-4">
+                        <img src="{% if program.instructor.profile_picture %}{{ program.instructor.profile_picture.url }}{% else %}{% static 'images/default-avatar.svg' %}{% endif %}" 
+                             alt="{{ program.instructor.get_full_name }}" 
+                             class="rounded-circle mb-3"
+                             style="width: 100px; height: 100px; object-fit: cover;">
+                        <h4 class="h5 mb-1">{{ program.instructor.get_full_name }}</h4>
+                        <p class="text-muted mb-3">{{ program.instructor.role|title }}</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="#" class="text-primary"><i class="fab fa-linkedin"></i></a>
+                            <a href="#" class="text-primary"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-primary"><i class="fas fa-globe"></i></a>
+                        </div>
+                    </div>
+                    <p class="text-muted">{{ program.instructor.bio|truncatewords:50 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+{% endblock %} 

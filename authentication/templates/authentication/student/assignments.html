@@ -1,0 +1,252 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}My Assignments - EduRise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:student_enrollments' %}">
+                            <i class="fas fa-book"></i> My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'auth:student_assignments' %}">
+                            <i class="fas fa-tasks"></i> Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:student_certificates' %}">
+                            <i class="fas fa-certificate"></i> Certificates
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">My Assignments</h1>
+            </div>
+
+            <!-- Assignment Tabs -->
+            <ul class="nav nav-tabs mb-4" id="assignmentTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                        Pending <span class="badge bg-danger">{{ pending_assignments|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="submitted-tab" data-bs-toggle="tab" data-bs-target="#submitted" type="button" role="tab">
+                        Submitted <span class="badge bg-primary">{{ submitted_assignments|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="graded-tab" data-bs-toggle="tab" data-bs-target="#graded" type="button" role="tab">
+                        Graded <span class="badge bg-success">{{ graded_assignments|length }}</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Assignment Content -->
+            <div class="tab-content" id="assignmentTabsContent">
+                <!-- Pending Assignments -->
+                <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                    {% if pending_assignments %}
+                    <div class="row">
+                        {% for assignment in pending_assignments %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ assignment.title }}</h5>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-book"></i> {{ assignment.course.title }}
+                                        </small>
+                                    </p>
+                                    <p class="card-text">{{ assignment.description|truncatewords:30 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            Due: {{ assignment.due_date|date:"F d, Y" }}
+                                        </small>
+                                        <a href="{% url 'assignments:submit_assignment' assignment.id %}" 
+                                           class="btn btn-primary btn-sm">
+                                            Submit Assignment
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                        <h3>No Pending Assignments</h3>
+                        <p class="text-muted">You're all caught up!</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Submitted Assignments -->
+                <div class="tab-pane fade" id="submitted" role="tabpanel">
+                    {% if submitted_assignments %}
+                    <div class="row">
+                        {% for submission in submitted_assignments %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ submission.assignment.title }}</h5>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-book"></i> {{ submission.assignment.course.title }}
+                                        </small>
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            Submitted on: {{ submission.submission_date|date:"F d, Y" }}
+                                        </small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-warning text-dark">
+                                            Under Review
+                                        </span>
+                                        <a href="{% url 'assignments:view_submission' submission.id %}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            View Submission
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                        <h3>No Submitted Assignments</h3>
+                        <p class="text-muted">Your submitted assignments will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Graded Assignments -->
+                <div class="tab-pane fade" id="graded" role="tabpanel">
+                    {% if graded_assignments %}
+                    <div class="row">
+                        {% for submission in graded_assignments %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ submission.assignment.title }}</h5>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-book"></i> {{ submission.assignment.course.title }}
+                                        </small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-success">
+                                            Grade: {{ submission.grade }}%
+                                        </span>
+                                        <small class="text-muted">
+                                            Graded on: {{ submission.grading_date|date:"F d, Y" }}
+                                        </small>
+                                    </div>
+                                    {% if submission.feedback %}
+                                    <p class="card-text">
+                                        <strong>Feedback:</strong> {{ submission.feedback|truncatewords:20 }}
+                                    </p>
+                                    {% endif %}
+                                    <a href="{% url 'assignments:view_submission' submission.id %}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-graduation-cap fa-4x text-muted mb-3"></i>
+                        <h3>No Graded Assignments</h3>
+                        <p class="text-muted">Your graded assignments will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+        padding: 0.5rem 1rem;
+    }
+
+    .sidebar .nav-link.active {
+        color: #2470dc;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #2470dc;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .nav-tabs .nav-link {
+        color: #6c757d;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #2470dc;
+        font-weight: 500;
+    }
+
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.35em 0.65em;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+{% endblock %}
+{% endblock %} 

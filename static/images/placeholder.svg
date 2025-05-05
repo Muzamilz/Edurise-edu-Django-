@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="400" version="1.1" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+ <rect width="800" height="400" fill="#f8f9fa"/>
+ <g fill="#adb5bd">
+  <path d="m370 175h60v50h-60z"/>
+  <path d="m360 165 40-40 40 40z"/>
+ </g>
+ <text x="400" y="260" fill="#6c757d" font-family="Arial" font-size="16" text-anchor="middle">Image Coming Soon</text>
+</svg> 

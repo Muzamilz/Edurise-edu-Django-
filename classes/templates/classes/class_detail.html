@@ -1,0 +1,114 @@
+{% extends 'classes/base.html' %}
+
+{% block class_content %}
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">{{ class.title }}</h4>
+        <p class="card-text">{{ class.description }}</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>Class Information</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <strong>Program:</strong> {{ class.program.title }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Teacher:</strong> {{ class.teacher.get_full_name }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Start Time:</strong> {{ class.start_time|date:"F j, Y, g:i a" }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>End Time:</strong> {{ class.end_time|date:"F j, Y, g:i a" }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Status:</strong>
+                        <span class="badge {% if class.status == 'scheduled' %}bg-primary{% elif class.status == 'in_progress' %}bg-warning{% elif class.status == 'completed' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ class.get_status_display }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="col-md-6">
+                <h5>Zoom Meeting</h5>
+                {% if class.zoom_join_url %}
+                    <div class="alert alert-info">
+                        <p><strong>Meeting ID:</strong> {{ class.zoom_meeting_id }}</p>
+                        <a href="{{ class.zoom_join_url }}" class="btn btn-primary" target="_blank">Join Meeting</a>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        No Zoom meeting has been created for this class.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>Attendance</h5>
+                {% if attendance %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Status</th>
+                                    <th>Join Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance %}
+                                <tr>
+                                    <td>{{ record.student.get_full_name }}</td>
+                                    <td>
+                                        <span class="badge {% if record.status == 'present' %}bg-success{% elif record.status == 'late' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ record.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ record.join_time|date:"g:i a" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No attendance records found.
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+                <h5>Feedback</h5>
+                {% if feedback %}
+                    <div class="list-group">
+                        {% for item in feedback %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ item.student.get_full_name }}</h6>
+                                <small>{{ item.created_at|date:"F j, Y" }}</small>
+                            </div>
+                            <p class="mb-1">Rating: {{ item.rating }}/5</p>
+                            <p class="mb-1">{{ item.feedback }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No feedback has been submitted yet.
+                    </div>
+                {% endif %}
+                
+                {% if user.role == 'student' and not user_feedback %}
+                    <div class="mt-3">
+                        <a href="{% url 'classes:submit_feedback' class.id %}" class="btn btn-primary">Submit Feedback</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

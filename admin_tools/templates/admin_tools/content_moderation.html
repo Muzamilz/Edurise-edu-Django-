@@ -1,0 +1,39 @@
+{% extends 'authentication/base.html' %}
+
+{% block title %}Content Moderation - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Content Moderation</h1>
+    
+    <!-- Pending Blog Posts -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Pending Blog Posts</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_blog_posts %}
+                <div class="list-group">
+                    {% for post in pending_blog_posts %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ post.title }}</h6>
+                                    <p class="mb-1">{{ post.content|truncatewords:30 }}</p>
+                                    <small class="text-muted">By {{ post.author.username }} on {{ post.created_at }}</small>
+                                </div>
+                                <div>
+                                    <a href="{% url 'auth:admin_approve_blog_post' post.id %}" class="btn btn-sm btn-success">Approve</a>
+                                    <a href="{% url 'auth:admin_reject_blog_post' post.id %}" class="btn btn-sm btn-danger">Reject</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No pending blog posts</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

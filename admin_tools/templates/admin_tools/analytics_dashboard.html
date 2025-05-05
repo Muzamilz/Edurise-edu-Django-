@@ -1,0 +1,218 @@
+{% extends 'admin_tools/base.html' %}
+
+{% block admin_content %}
+<div class="row">
+    <!-- Quick Stats -->
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted mb-3">Total Users</h6>
+                <h3 class="mb-0">{{ total_users }}</h3>
+                <div class="mt-2">
+                    <span class="text-success">
+                        <i class="fas fa-arrow-up me-1"></i>{{ user_growth_rate }}%
+                    </span>
+                    <span class="text-muted ms-2">from last month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted mb-3">Active Programs</h6>
+                <h3 class="mb-0">{{ active_programs }}</h3>
+                <div class="mt-2">
+                    <span class="text-success">
+                        <i class="fas fa-arrow-up me-1"></i>{{ program_growth_rate }}%
+                    </span>
+                    <span class="text-muted ms-2">from last month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted mb-3">Total Revenue</h6>
+                <h3 class="mb-0">${{ total_revenue }}</h3>
+                <div class="mt-2">
+                    <span class="text-success">
+                        <i class="fas fa-arrow-up me-1"></i>{{ revenue_growth_rate }}%
+                    </span>
+                    <span class="text-muted ms-2">from last month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted mb-3">Completion Rate</h6>
+                <h3 class="mb-0">{{ completion_rate }}%</h3>
+                <div class="mt-2">
+                    <span class="text-success">
+                        <i class="fas fa-arrow-up me-1"></i>{{ completion_growth_rate }}%
+                    </span>
+                    <span class="text-muted ms-2">from last month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">User Growth</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">User Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="userDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reports -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Saved Reports</h5>
+            <a href="{% url 'admin_tools:create_report' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Report
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover" id="reportsTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Created By</th>
+                        <th>Last Run</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report.name }}</td>
+                        <td>
+                            <span class="badge bg-info">{{ report.get_report_type_display }}</span>
+                        </td>
+                        <td>{{ report.created_by.get_full_name }}</td>
+                        <td>{{ report.last_run|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span class="badge {% if report.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ report.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_tools:view_report' report.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
+                            <p class="mb-0">No reports found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(document).ready(function() {
+    $('#reportsTable').DataTable({
+        pageLength: 10,
+        order: [[3, 'desc']],
+        dom: '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center"l><"d-flex align-items-center"f>>t<"d-flex justify-content-between align-items-center mt-3"<"d-flex align-items-center"i><"d-flex align-items-center"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search reports...",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ reports",
+            infoEmpty: "Showing 0 to 0 of 0 reports",
+            infoFiltered: "(filtered from _MAX_ total reports)"
+        }
+    });
+
+    // User Growth Chart
+    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    new Chart(userGrowthCtx, {
+        type: 'line',
+        data: {
+            labels: {{ user_growth_labels|safe }},
+            datasets: [{
+                label: 'Total Users',
+                data: {{ user_growth_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // User Distribution Chart
+    const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+    new Chart(userDistributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Students', 'Teachers', 'Admins'],
+            datasets: [{
+                data: {{ user_distribution_data|safe }},
+                backgroundColor: [
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 99, 132)',
+                    'rgb(255, 205, 86)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

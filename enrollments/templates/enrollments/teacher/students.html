@@ -1,0 +1,85 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}My Students - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="h3 mb-4">My Students</h1>
+
+    <!-- Course Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filter by Course</h5>
+            <select class="form-select" id="courseFilter">
+                <option value="">All Courses</option>
+                {% for course in courses %}
+                <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Students List -->
+    <div class="row">
+        {% for student in students %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            {% if student.profile_picture %}
+                            <img src="{{ student.profile_picture.url }}" alt="{{ student.get_full_name }}" class="rounded-circle" width="50" height="50">
+                            {% else %}
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                {{ student.get_initials }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="card-title mb-0">{{ student.get_full_name }}</h5>
+                            <p class="text-muted small mb-0">{{ student.email }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="student-stats">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="p-2 border rounded text-center">
+                                    <div class="small text-muted">Enrolled Courses</div>
+                                    <div class="h5 mb-0">{{ student.student_enrollments.count }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded text-center">
+                                    <div class="small text-muted">Completed</div>
+                                    <div class="h5 mb-0">{{ student.student_enrollments.completed.count }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="#" class="btn btn-sm btn-outline-primary">View Progress</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary">Message</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No students found.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('courseFilter').addEventListener('change', function() {
+    // Add filter functionality here
+});
+</script>
+{% endblock %}
+{% endblock %} 

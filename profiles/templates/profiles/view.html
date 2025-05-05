@@ -1,0 +1,106 @@
+{% extends 'profiles/base.html' %}
+
+{% block profile_title %}Profile{% endblock %}
+
+{% block profile_content %}
+<div class="card">
+    <div class="card-header">
+        <h4>Profile Information</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Basic Information</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8">{{ profile.user.get_full_name }}</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">{{ profile.user.email }}</dd>
+
+                    <dt class="col-sm-4">Role</dt>
+                    <dd class="col-sm-8">{{ profile.user.get_role_display }}</dd>
+
+                    <dt class="col-sm-4">Location</dt>
+                    <dd class="col-sm-8">{{ profile.location|default:"Not specified" }}</dd>
+
+                    <dt class="col-sm-4">Website</dt>
+                    <dd class="col-sm-8">
+                        {% if profile.website %}
+                            <a href="{{ profile.website }}" target="_blank">{{ profile.website }}</a>
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <h5>Bio</h5>
+                <p>{{ profile.bio|default:"No bio provided" }}</p>
+            </div>
+        </div>
+
+        {% if teacher_profile %}
+        <hr>
+        <div class="row">
+            <div class="col-12">
+                <h5>Teacher Information</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">Experience</dt>
+                    <dd class="col-sm-8">{{ teacher_profile.teaching_experience }} years</dd>
+
+                    <dt class="col-sm-4">Specialization</dt>
+                    <dd class="col-sm-8">{{ teacher_profile.specialization }}</dd>
+
+                    <dt class="col-sm-4">Qualifications</dt>
+                    <dd class="col-sm-8">{{ teacher_profile.qualifications }}</dd>
+
+                    <dt class="col-sm-4">Subjects</dt>
+                    <dd class="col-sm-8">{{ teacher_profile.subjects|join:", " }}</dd>
+
+                    <dt class="col-sm-4">Teaching Style</dt>
+                    <dd class="col-sm-8">{{ teacher_profile.teaching_style|default:"Not specified" }}</dd>
+
+                    <dt class="col-sm-4">Hourly Rate</dt>
+                    <dd class="col-sm-8">
+                        {% if teacher_profile.hourly_rate %}
+                            ${{ teacher_profile.hourly_rate }}/hour
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if student_profile %}
+        <hr>
+        <div class="row">
+            <div class="col-12">
+                <h5>Student Information</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">Skill Level</dt>
+                    <dd class="col-sm-8">{{ student_profile.get_skill_level_display }}</dd>
+
+                    <dt class="col-sm-4">Learning Goals</dt>
+                    <dd class="col-sm-8">{{ student_profile.learning_goals }}</dd>
+
+                    <dt class="col-sm-4">Preferred Languages</dt>
+                    <dd class="col-sm-8">{{ student_profile.preferred_languages|join:", " }}</dd>
+
+                    <dt class="col-sm-4">Interests</dt>
+                    <dd class="col-sm-8">{{ student_profile.interests|join:", " }}</dd>
+
+                    <dt class="col-sm-4">Learning Style</dt>
+                    <dd class="col-sm-8">{{ student_profile.learning_style|default:"Not specified" }}</dd>
+
+                    <dt class="col-sm-4">Time Zone</dt>
+                    <dd class="col-sm-8">{{ student_profile.time_zone|default:"Not specified" }}</dd>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

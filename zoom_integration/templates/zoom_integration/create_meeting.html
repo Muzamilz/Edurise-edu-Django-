@@ -1,0 +1,47 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Create Virtual Class - Edurise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Schedule Virtual Class</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="topic" class="form-label">Class Topic</label>
+                            <input type="text" class="form-control" id="topic" name="topic" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="program" class="form-label">Program</label>
+                            <select class="form-select" id="program" name="program_id" required>
+                                <option value="">Select a Program</option>
+                                {% for program in programs %}
+                                <option value="{{ program.id }}">{{ program.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="start_time" class="form-label">Start Time</label>
+                            <input type="datetime-local" class="form-control" id="start_time" name="start_time" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="duration" class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" min="15" max="240" required>
+                            <small class="text-muted">Duration must be between 15 and 240 minutes</small>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Schedule Class</button>
+                            <a href="{% url 'zoom:meeting_list' %}" class="btn btn-secondary">View Scheduled Classes</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,271 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}My Enrollments - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'auth:dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'enrollments:my_enrollments' %}">
+                            <i class="fas fa-book"></i> My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'enrollments:student_assignments' %}">
+                            <i class="fas fa-tasks"></i> Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'enrollments:student_certificates' %}">
+                            <i class="fas fa-certificate"></i> Certificates
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">My Enrollments</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'courses:program_list' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Browse Programs
+                    </a>
+                </div>
+            </div>
+
+            <!-- Enrollment Tabs -->
+            <ul class="nav nav-tabs mb-4" id="enrollmentTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                        Active <span class="badge bg-primary">{{ active_enrollments|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
+                        Completed <span class="badge bg-success">{{ completed_enrollments|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                        Pending <span class="badge bg-warning">{{ pending_enrollments|length }}</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Enrollment Content -->
+            <div class="tab-content" id="enrollmentTabsContent">
+                <!-- Active Enrollments -->
+                <div class="tab-pane fade show active" id="active" role="tabpanel">
+                    {% if active_enrollments %}
+                    <div class="row">
+                        {% for enrollment in active_enrollments %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="card-title mb-1">{{ enrollment.course.title }}</h5>
+                                            <p class="card-text text-muted mb-0">
+                                                <small>Instructor: {{ enrollment.course.instructor.get_full_name }}</small>
+                                            </p>
+                                        </div>
+                                        <span class="badge bg-primary">Active</span>
+                                    </div>
+                                    <p class="card-text">{{ enrollment.course.description|truncatewords:30 }}</p>
+                                    <div class="progress mb-3">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ enrollment.progress }}%;" 
+                                             aria-valuenow="{{ enrollment.progress }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ enrollment.progress }}%
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            Enrolled on {{ enrollment.enrollment_date|date:"F d, Y" }}
+                                        </small>
+                                        <a href="{% url 'courses:program_detail' enrollment.course.program.id %}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            Continue Learning
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book fa-4x text-muted mb-3"></i>
+                        <h3>No Active Enrollments</h3>
+                        <p class="text-muted">You don't have any active course enrollments.</p>
+                        <a href="{% url 'courses:program_list' %}" class="btn btn-primary">
+                            Browse Available Courses
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Completed Enrollments -->
+                <div class="tab-pane fade" id="completed" role="tabpanel">
+                    {% if completed_enrollments %}
+                    <div class="row">
+                        {% for enrollment in completed_enrollments %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="card-title mb-1">{{ enrollment.course.title }}</h5>
+                                            <p class="card-text text-muted mb-0">
+                                                <small>Instructor: {{ enrollment.course.instructor.get_full_name }}</small>
+                                            </p>
+                                        </div>
+                                        <span class="badge bg-success">Completed</span>
+                                    </div>
+                                    <p class="card-text">{{ enrollment.course.description|truncatewords:30 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            Completed on {{ enrollment.completion_date|date:"F d, Y" }}
+                                        </small>
+                                        <a href="{% url 'enrollments:student_certificates' %}" class="btn btn-sm btn-outline-success">
+                                            View Certificate
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-4x text-muted mb-3"></i>
+                        <h3>No Completed Courses</h3>
+                        <p class="text-muted">You haven't completed any courses yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Pending Enrollments -->
+                <div class="tab-pane fade" id="pending" role="tabpanel">
+                    {% if pending_enrollments %}
+                    <div class="row">
+                        {% for enrollment in pending_enrollments %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="card-title mb-1">{{ enrollment.course.title }}</h5>
+                                            <p class="card-text text-muted mb-0">
+                                                <small>Instructor: {{ enrollment.course.instructor.get_full_name }}</small>
+                                            </p>
+                                        </div>
+                                        <span class="badge bg-warning">Pending</span>
+                                    </div>
+                                    <p class="card-text">{{ enrollment.course.description|truncatewords:30 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            Applied on {{ enrollment.enrollment_date|date:"F d, Y" }}
+                                        </small>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="cancelEnrollment('{{ enrollment.id }}')">
+                                            Cancel Enrollment
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clock fa-4x text-muted mb-3"></i>
+                        <h3>No Pending Enrollments</h3>
+                        <p class="text-muted">You don't have any pending course enrollments.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+        padding: 0.5rem 1rem;
+    }
+
+    .sidebar .nav-link.active {
+        color: #2470dc;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #2470dc;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .nav-tabs .nav-link {
+        color: #6c757d;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #2470dc;
+        font-weight: 500;
+    }
+
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.35em 0.65em;
+    }
+
+    .progress {
+        height: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function cancelEnrollment(enrollmentId) {
+        if (confirm('Are you sure you want to cancel this enrollment?')) {
+            // Implement enrollment cancellation
+            alert('Enrollment cancellation functionality will be implemented soon!');
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %} 

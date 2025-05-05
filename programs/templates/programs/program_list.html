@@ -1,0 +1,76 @@
+{% extends 'authentication/base.html' %}
+
+{% block title %}Our Programs - Eduraise{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-5">Our Educational Programs</h1>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Program Categories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'programs:regular_english' %}" class="list-group-item list-group-item-action">
+                        Regular English Program
+                    </a>
+                    <a href="{% url 'programs:plus_english' %}" class="list-group-item list-group-item-action">
+                        Plus English Program
+                    </a>
+                    <a href="{% url 'programs:esp' %}" class="list-group-item list-group-item-action">
+                        English for Specific Purposes (ESP)
+                    </a>
+                    <a href="{% url 'programs:eap' %}" class="list-group-item list-group-item-action">
+                        English for Academic Purposes (EAP)
+                    </a>
+                    <a href="{% url 'programs:ielts' %}" class="list-group-item list-group-item-action">
+                        IELTS Preparation
+                    </a>
+                    <a href="{% url 'programs:toefl' %}" class="list-group-item list-group-item-action">
+                        TOEFL Preparation
+                    </a>
+                    <a href="{% url 'programs:business_english' %}" class="list-group-item list-group-item-action">
+                        Business English
+                    </a>
+                    <a href="{% url 'programs:non_english' %}" class="list-group-item list-group-item-action">
+                        Non-English Language Programs
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="row">
+                {% for program in programs %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        {% if program.cover_photo %}
+                        <img src="{{ program.cover_photo.url }}" class="card-img-top" alt="{{ program.title }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ program.title }}</h5>
+                            <p class="card-text">{{ program.description|truncatewords:30 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">{{ program.get_program_type_display }}</span>
+                                <span class="badge bg-secondary">{{ program.get_level_display }}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'programs:program_detail' program.id %}" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No programs available at the moment.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

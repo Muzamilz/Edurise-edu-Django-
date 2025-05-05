@@ -1,0 +1,97 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Create Program - Eduraise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-4">Create New Program</h1>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="id_title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Description</label>
+                            <textarea class="form-control" id="id_description" name="description" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_program_type" class="form-label">Program Type</label>
+                                <select class="form-select" id="id_program_type" name="program_type" required>
+                                    <option value="">Select Program Type</option>
+                                    <option value="regular_english">Regular English</option>
+                                    <option value="plus_english">Plus English</option>
+                                    <option value="esp">ESP</option>
+                                    <option value="eap">EAP</option>
+                                    <option value="test_prep">Test Preparation</option>
+                                    <option value="non_english">Non-English</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_level" class="form-label">Level</label>
+                                <select class="form-select" id="id_level" name="level" required>
+                                    <option value="">Select Level</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_duration" class="form-label">Duration (weeks)</label>
+                                <input type="number" class="form-control" id="id_duration" name="duration" min="1" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_price" class="form-label">Price ($)</label>
+                                <input type="number" class="form-control" id="id_price" name="price" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_instructor" class="form-label">Instructor</label>
+                            <select class="form-select" id="id_instructor" name="instructor" required>
+                                <option value="">Select Instructor</option>
+                                {% for teacher in teachers %}
+                                <option value="{{ teacher.id }}">{{ teacher.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_cover_photo" class="form-label">Cover Photo</label>
+                            <input type="file" class="form-control" id="id_cover_photo" name="cover_photo" accept="image/*">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_status" class="form-label">Status</label>
+                            <select class="form-select" id="id_status" name="status" required>
+                                <option value="draft">Draft</option>
+                                <option value="active">Active</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'programs:program_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Program</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

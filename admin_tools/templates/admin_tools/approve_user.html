@@ -1,0 +1,83 @@
+{% extends 'admin_tools/base.html' %}
+{% load static %}
+
+{% block title %}Approve User - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 col-xl-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Approve User Registration</h5>
+                    <p class="text-muted mb-0">Review and approve user registration request</p>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6>User Details:</h6>
+                        <dl class="row">
+                            <dt class="col-sm-3">Username:</dt>
+                            <dd class="col-sm-9">{{ user.username }}</dd>
+                            
+                            <dt class="col-sm-3">Email:</dt>
+                            <dd class="col-sm-9">{{ user.email }}</dd>
+                            
+                            <dt class="col-sm-3">Name:</dt>
+                            <dd class="col-sm-9">{{ user.get_full_name }}</dd>
+                            
+                            <dt class="col-sm-3">Role:</dt>
+                            <dd class="col-sm-9">{{ user.role }}</dd>
+                            
+                            <dt class="col-sm-3">Date Joined:</dt>
+                            <dd class="col-sm-9">{{ user.date_joined }}</dd>
+                        </dl>
+                        {% if extra_info %}
+                        <hr>
+                        <h6>Additional Information:</h6>
+                        <dl class="row">
+                            {% if user.role == 'teacher' %}
+                                <dt class="col-sm-3">Education:</dt>
+                                <dd class="col-sm-9">{{ extra_info.education }}</dd>
+                                <dt class="col-sm-3">Experience:</dt>
+                                <dd class="col-sm-9">{{ extra_info.experience }}</dd>
+                                <dt class="col-sm-3">Expertise:</dt>
+                                <dd class="col-sm-9">{{ extra_info.expertise }}</dd>
+                                <dt class="col-sm-3">CV:</dt>
+                                <dd class="col-sm-9">
+                                    {% if extra_info.cv %}
+                                        <a href="{{ extra_info.cv }}" target="_blank">Download CV</a>
+                                    {% else %}
+                                        <span class="text-muted">Not provided</span>
+                                    {% endif %}
+                                </dd>
+                            {% elif user.role == 'student' %}
+                                <dt class="col-sm-3">Age:</dt>
+                                <dd class="col-sm-9">{{ extra_info.age }}</dd>
+                                <dt class="col-sm-3">Interests:</dt>
+                                <dd class="col-sm-9">{{ extra_info.interests }}</dd>
+                            {% endif %}
+                        </dl>
+                        {% endif %}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Are you sure you want to approve this user's registration?
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_tools:user_management' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Users
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Approve User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

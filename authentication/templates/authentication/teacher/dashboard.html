@@ -1,0 +1,174 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Teacher Dashboard - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar is now handled by base.html -->
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold section-title mb-0">Welcome, {{ request.user.get_full_name }}!</h2>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{% url 'programs:create_program' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> New Program
+                        </a>
+                        <a href="{% url 'classes:create_class' %}" class="btn btn-outline-info">
+                            <i class="fas fa-calendar-plus me-1"></i> Schedule Class
+                        </a>
+                        <a href="{% url 'enrollments:teacher_assignments' %}" class="btn btn-outline-success">
+                            <i class="fas fa-tasks me-1"></i> New Assignment
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Metrics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-primary">Total Students</div>
+                            <div class="fs-3 fw-bold">{{ total_students|default:'0' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-success">Active Programs</div>
+                            <div class="fs-3 fw-bold">{{ active_programs|default:'0' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-info">Total Courses</div>
+                            <div class="fs-3 fw-bold">{{ total_courses|default:'0' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-warning">Average Rating</div>
+                            <div class="fs-3 fw-bold">{{ average_rating|floatformat:1|default:'--' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Programs Table -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Your Programs</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-secondary mb-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Filter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?status=active">Active</a></li>
+                            <li><a class="dropdown-item" href="?status=draft">Draft</a></li>
+                            <li><a class="dropdown-item" href="?status=completed">Completed</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="table-responsive p-0">
+                    <table class="table table-bordered align-items-center mb-0">
+                        <thead>
+                            <tr>
+                                <th>Program</th>
+                                <th>Progress</th>
+                                <th>Students</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for program in programs %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex px-2 py-1">
+                                        <div>
+                                            <img src="{{ program.thumbnail.url|default:'/static/img/program-placeholder.jpg' }}" class="avatar me-3" alt="program" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
+                                        </div>
+                                        <div class="d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-sm">{{ program.title }}</h6>
+                                            <p class="text-xs text-secondary mb-0">{{ program.courses.count }} courses</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ program.completion_rate }}%;" aria-valuenow="{{ program.completion_rate }}" aria-valuemin="0" aria-valuemax="100">{{ program.completion_rate }}%</div>
+                                    </div>
+                                </td>
+                                <td class="align-middle text-center">
+                                    <span class="text-secondary text-sm font-weight-bold">{{ program.total_enrollments }}</span>
+                                </td>
+                                <td class="align-middle text-center">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <span class="me-2 text-xs font-weight-bold">{{ program.rating|floatformat:1 }}</span>
+                                        <div>
+                                            <i class="fas fa-star text-warning"></i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="align-middle text-center text-sm">
+                                    <span class="badge bg-{% if program.status == 'active' %}success{% elif program.status == 'completed' %}primary{% else %}secondary{% endif %}">{{ program.status|capfirst }}</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted">No programs found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Upcoming Classes -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Upcoming Classes</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_classes %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Program</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for class in upcoming_classes %}
+                                    <tr>
+                                        <td>{{ class.title }}</td>
+                                        <td>{{ class.start_time|date:"M d, Y" }}</td>
+                                        <td>{{ class.start_time|date:"H:i" }} - {{ class.end_time|date:"H:i" }}</td>
+                                        <td>{{ class.program.title }}</td>
+                                        <td>
+                                            {% if class.meeting_link %}
+                                                <a href="{{ class.meeting_link }}" class="btn btn-sm btn-success" target="_blank">Join</a>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">No upcoming classes.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

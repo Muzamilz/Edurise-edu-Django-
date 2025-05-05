@@ -1,0 +1,157 @@
+{% extends 'admin_tools/base.html' %}
+{% load static %}
+{% load admin_filters %}
+
+{% block title %}User Management - Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">User Management</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_tools:create_user' %}" class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i>Create User
+            </a>
+            <a href="{% url 'admin_tools:bulk_user_operations' %}" class="btn btn-outline-primary">
+                <i class="fas fa-tasks me-2"></i>Bulk Operations
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" name="role">
+                        <option value="all" {% if request.GET.role == 'all' %}selected{% endif %}>All Roles</option>
+                        <option value="student" {% if request.GET.role == 'student' %}selected{% endif %}>Student</option>
+                        <option value="teacher" {% if request.GET.role == 'teacher' %}selected{% endif %}>Teacher</option>
+                        <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="all" {% if request.GET.status == 'all' %}selected{% endif %}>All Status</option>
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search by name or email" value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Users List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.get_full_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="badge bg-{{ user.role|role_color }}">
+                                    {{ user.get_role_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if user.is_active %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ user.is_active|yesno:"Active,Inactive" }}
+                                </span>
+                            </td>
+                            <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                            <td>{{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'admin_tools:update_user_role' user.id %}">
+                                                <i class="fas fa-user-shield me-2"></i>Update Role
+                                            </a>
+                                        </li>
+                                        {% if not user.is_approved %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'admin_tools:approve_user' user.id %}">
+                                                <i class="fas fa-check me-2"></i>Approve
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'admin_tools:reject_user' user.id %}">
+                                                <i class="fas fa-times me-2"></i>Reject
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'admin_tools:user_activity_logs' %}?user={{ user.id }}">
+                                                <i class="fas fa-history me-2"></i>View Activity
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'admin_tools:user_sessions' %}?user={{ user.id }}">
+                                                <i class="fas fa-clock me-2"></i>View Sessions
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                <p class="mb-0">No users found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTables
+    $('.table').DataTable({
+        order: [[4, 'desc']], // Sort by last login by default
+        responsive: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search users..."
+        }
+    });
+});
+</script>
+{% endblock %} 

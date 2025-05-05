@@ -1,0 +1,172 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Create Bulk Schedule{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Create Bulk Schedule</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="bulkScheduleForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="program" class="form-label">Program</label>
+                            <select class="form-select" id="program" name="program" required>
+                                <option value="">Select a program</option>
+                                {% for program in assigned_programs %}
+                                <option value="{{ program.id }}">{{ program.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="template" class="form-label">Meeting Template</label>
+                            <select class="form-select" id="template" name="template" required>
+                                <option value="">Select a template</option>
+                                {% for template in templates %}
+                                <option value="{{ template.id }}">{{ template.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="start_date" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="end_date" class="form-label">End Date</label>
+                                    <input type="date" class="form-control" id="end_date" name="end_date" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Days of Week</label>
+                            <div class="row">
+                                {% for day in "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday".split %}
+                                <div class="col-md-3 col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="day_{{ forloop.counter0 }}" 
+                                               name="days_of_week" 
+                                               value="{{ forloop.counter0 }}">
+                                        <label class="form-check-label" for="day_{{ forloop.counter0 }}">
+                                            {{ day }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Time Slots</label>
+                            <div id="timeSlots">
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <input type="time" class="form-control" name="time_slots[]" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-time-slot">
+                                            <i class="fas fa-times"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="addTimeSlot">
+                                <i class="fas fa-plus"></i> Add Time Slot
+                            </button>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Create Schedule</button>
+                            <a href="{% url 'zoom:bulk_schedule_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add time slot
+    document.getElementById('addTimeSlot').addEventListener('click', function() {
+        const timeSlot = document.createElement('div');
+        timeSlot.className = 'row mb-2';
+        timeSlot.innerHTML = `
+            <div class="col-md-6">
+                <input type="time" class="form-control" name="time_slots[]" required>
+            </div>
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-danger btn-sm remove-time-slot">
+                    <i class="fas fa-times"></i> Remove
+                </button>
+            </div>
+        `;
+        document.getElementById('timeSlots').appendChild(timeSlot);
+    });
+
+    // Remove time slot
+    document.getElementById('timeSlots').addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-time-slot') || 
+            e.target.parentElement.classList.contains('remove-time-slot')) {
+            const row = e.target.closest('.row');
+            if (document.querySelectorAll('#timeSlots .row').length > 1) {
+                row.remove();
+            }
+        }
+    });
+
+    // Form submission
+    document.getElementById('bulkScheduleForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Collect days of week
+        const daysOfWeek = Array.from(document.querySelectorAll('input[name="days_of_week"]:checked'))
+            .map(checkbox => parseInt(checkbox.value));
+        formData.set('days_of_week', JSON.stringify(daysOfWeek));
+        
+        // Collect time slots
+        const timeSlots = Array.from(document.querySelectorAll('input[name="time_slots[]"]'))
+            .map(input => input.value);
+        formData.set('time_slots', JSON.stringify(timeSlots));
+        
+        // Submit form
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "{% url 'zoom:bulk_schedule_list' %}";
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while creating the schedule.');
+        });
+    });
+});
+</script>
+{% endblock %} 

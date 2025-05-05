@@ -1,0 +1,220 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - Eduraise Blog{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container-fluid bg-primary text-white py-5 mb-5" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">{{ post.title }}</h1>
+                <div class="d-flex align-items-center justify-content-center text-white-50">
+                    <div class="me-3">
+                        {% if post.author.profile_picture %}
+                            <img src="{{ post.author.profile_picture.url }}" 
+                         alt="{{ post.author.get_full_name }}" 
+                                 class="rounded-circle" 
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="mb-0">
+                            <strong>{{ post.author.get_full_name }}</strong><br>
+                            <small class="text-muted">
+                                {{ post.published_at|date:"F d, Y" }}
+                            </small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8 mx-auto">
+            {% if post.featured_image %}
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid rounded mb-4" style="width: 100%; height: 400px; object-fit: cover;">
+            {% endif %}
+            
+            <div class="blog-content mb-5">
+                {{ post.content|safe|linebreaks }}
+            </div>
+            
+            <!-- Categories and Tags -->
+            <div class="mb-5">
+                <h5 class="mb-3">Categories</h5>
+                {% for category in post.categories.all %}
+                <span class="badge bg-light text-primary me-2 mb-2">{{ category.name }}</span>
+                {% endfor %}
+            </div>
+            
+            {% if user == post.author %}
+            <div class="mb-5">
+                <a href="{% url 'blog:edit_post' slug=post.slug %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-2"></i>Edit Post
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h3 class="mb-0">Comments ({{ comments.count }})</h3>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                    <!-- Comment Form -->
+                    <div class="mb-4">
+                        <form method="post" id="commentForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="parent" id="parentCommentId">
+                            <div class="mb-3">
+                                {{ comment_form.content }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Post Comment
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Please <a href="{% url 'auth:login' %}">login</a> to post a comment.
+                    </div>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                        <div class="card mb-3" id="comment-{{ comment.id }}">
+                            <div class="card-body">
+                                <div class="d-flex mb-3">
+                                    <div class="me-3">
+                                        {% if comment.author.profile_picture %}
+                                            <img src="{{ comment.author.profile_picture.url }}" 
+                                         alt="{{ comment.author.get_full_name }}" 
+                                                 class="rounded-circle" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ comment.author.get_full_name }}</h6>
+                                        <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                                    </div>
+                                </div>
+                                
+                                <p class="mb-3">{{ comment.content|linebreaks }}</p>
+                                
+                                <div class="d-flex">
+                                    {% if user.is_authenticated %}
+                                    <button class="btn btn-sm btn-link text-primary reply-btn" 
+                                            data-comment-id="{{ comment.id }}">
+                                        <i class="fas fa-reply me-1"></i>Reply
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if user == comment.author or user == post.author %}
+                                    <form method="post" action="{% url 'blog:delete_comment' comment.id %}" 
+                                          class="d-inline ms-2"
+                                          onsubmit="return confirm('Are you sure you want to delete this comment?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-link text-danger">
+                                            <i class="fas fa-trash-alt me-1"></i>Delete
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Replies -->
+                                <div class="ms-4 mt-3">
+                                    {% for reply in comment.get_replies %}
+                                    <div class="card mb-2">
+                                        <div class="card-body">
+                                            <div class="d-flex mb-2">
+                                                <div class="me-3">
+                                                    {% if reply.author.profile_picture %}
+                                                        <img src="{{ reply.author.profile_picture.url }}" 
+                                                     alt="{{ reply.author.get_full_name }}" 
+                                                             class="rounded-circle" 
+                                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                                             style="width: 50px; height: 50px;">
+                                                            <i class="fas fa-user text-white"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">{{ reply.author.get_full_name }}</h6>
+                                                    <small class="text-muted">{{ reply.created_at|timesince }} ago</small>
+                                                </div>
+                                            </div>
+                                            
+                                            <p class="mb-2">{{ reply.content|linebreaks }}</p>
+                                            
+                                            {% if user == reply.author or user == post.author %}
+                                            <form method="post" action="{% url 'blog:delete_comment' reply.id %}" 
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('Are you sure you want to delete this reply?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-link text-danger">
+                                                    <i class="fas fa-trash-alt me-1"></i>Delete
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">
+                            <i class="fas fa-comments fa-2x mb-3"></i><br>
+                            No comments yet. Be the first to comment!
+                        </p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const commentForm = document.getElementById('commentForm');
+    const parentInput = document.getElementById('parentCommentId');
+    const replyButtons = document.querySelectorAll('.reply-btn');
+    
+    replyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            parentInput.value = commentId;
+            commentForm.scrollIntoView({ behavior: 'smooth' });
+            document.querySelector('#id_content').focus();
+        });
+    });
+});
+</script>
+{% endblock %} 

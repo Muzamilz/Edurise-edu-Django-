@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Profile - {{ student_profile.profile.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Student Info Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                {% if student_profile.profile.avatar %}
+                    <img src="{{ student_profile.profile.avatar.url }}" class="card-img-top" alt="Student Avatar">
+                {% else %}
+                    <div class="card-img-top bg-secondary text-white text-center py-5">
+                        <i class="fas fa-user-graduate fa-4x"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ student_profile.profile.user.get_full_name }}</h5>
+                    <p class="card-text text-muted">{{ student_profile.skill_level|title }} Level Student</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'profiles:edit_student_profile' %}" class="btn btn-primary">Edit Student Profile</a>
+                        <a href="{% url 'profiles:profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Time Zone</h6>
+                    <p class="card-text">{{ student_profile.time_zone }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Details -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Learning Information</h4>
+                    
+                    <div class="mb-4">
+                        <h6 class="text-muted">Learning Goals</h6>
+                        <p>{{ student_profile.learning_goals|linebreaks }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Preferred Languages</h6>
+                        <ul class="list-unstyled">
+                            {% for language in student_profile.preferred_languages %}
+                                <li><i class="fas fa-language me-2"></i>{{ language }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Interests</h6>
+                        <ul class="list-unstyled">
+                            {% for interest in student_profile.interests %}
+                                <li><i class="fas fa-star me-2"></i>{{ interest }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Learning Style</h6>
+                        <p>{{ student_profile.learning_style }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted">Preferred Schedule</h6>
+                        <ul class="list-unstyled">
+                            {% for day, hours in student_profile.preferred_schedule.items %}
+                                <li><strong>{{ day }}:</strong> {{ hours }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

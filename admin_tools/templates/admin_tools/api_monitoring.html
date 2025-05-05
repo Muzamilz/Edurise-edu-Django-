@@ -1,0 +1,221 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}API Monitoring - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>API Monitoring</h1>
+        <div class="btn-group">
+            <a href="?days=7" class="btn btn-outline-primary {% if days == 7 %}active{% endif %}">7 Days</a>
+            <a href="?days=30" class="btn btn-outline-primary {% if days == 30 %}active{% endif %}">30 Days</a>
+            <a href="?days=90" class="btn btn-outline-primary {% if days == 90 %}active{% endif %}">90 Days</a>
+        </div>
+    </div>
+
+    <!-- Performance Overview -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Requests</h6>
+                    <h2 class="mb-0">{{ performance_metrics.total_requests }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Success Rate</h6>
+                    <h2 class="mb-0">{{ performance_metrics.success_rate }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Error Count</h6>
+                    <h2 class="mb-0 text-danger">{{ performance_metrics.total_errors }}</h2>
+                </div>
+            </div>
+        </div>
+                    </div>
+
+    <!-- API Usage Chart -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">API Usage Over Time</h5>
+                </div>
+        <div class="card-body">
+            <canvas id="apiUsageChart" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Endpoint Statistics -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Top Endpoints</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Requests</th>
+                            <th>Errors</th>
+                            <th>Success Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for endpoint in endpoint_stats %}
+                        <tr>
+                            <td>{{ endpoint.details }}</td>
+                            <td>{{ endpoint.count }}</td>
+                            <td>{{ endpoint.error_count }}</td>
+                            <td>
+                                {% with success_rate=endpoint.count|subtract:endpoint.error_count|divide:endpoint.count|multiply:100 %}
+                                <span class="badge bg-{% if success_rate >= 95 %}success{% elif success_rate >= 80 %}warning{% else %}danger{% endif %}">
+                                    {{ success_rate|floatformat:1 }}%
+                                </span>
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Errors -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Recent API Errors</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Endpoint</th>
+                            <th>Error</th>
+                            <th>Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error in recent_errors %}
+                        <tr>
+                            <td>{{ error.created_at|date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ error.details }}</td>
+                            <td>{{ error.error_message }}</td>
+                            <td>{{ error.admin.get_full_name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                <p class="text-muted mb-0">No recent errors found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    .badge {
+        font-size: 0.8rem;
+        padding: 0.35em 0.65em;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('apiUsageChart').getContext('2d');
+    const dailyStats = {{ daily_stats|safe }};
+    
+    const dates = Object.keys(dailyStats);
+    const requests = dates.map(function(date) { return dailyStats[date].requests; });
+    const errors = dates.map(function(date) { return dailyStats[date].errors; });
+    const successRates = dates.map(function(date) { return dailyStats[date].success_rate; });
+    
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Requests',
+                    data: requests,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                },
+                {
+                    label: 'Errors',
+                    data: errors,
+                    borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+                },
+                {
+                    label: 'Success Rate (%)',
+                    data: successRates,
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Count'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Success Rate (%)'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

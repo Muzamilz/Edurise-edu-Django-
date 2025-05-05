@@ -1,0 +1,183 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}Become a Student - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-4 mb-4">Start Your Learning Journey</h1>
+
+            <!-- Registration Form -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Student Registration</h2>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <hr>
+                        <h5 class="mb-3">Learning Profile</h5>
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Overview -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Why Learn with EduRaise?</h2>
+                    <p class="lead">
+                        Join our community of learners and achieve your language goals with expert teachers, 
+                        personalized learning paths, and a supportive environment.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Programs -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Our Programs</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">Regular English</h5>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">✓ All levels (Beginner to Advanced)</li>
+                                        <li class="mb-2">✓ 12 weeks per level</li>
+                                        <li class="mb-2">✓ 3 hours per week</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">Plus English</h5>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">✓ Intensive learning</li>
+                                        <li class="mb-2">✓ 8 weeks per level</li>
+                                        <li class="mb-2">✓ 5 hours per week</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">Test Preparation</h5>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">✓ IELTS & TOEFL</li>
+                                        <li class="mb-2">✓ 8-12 weeks</li>
+                                        <li class="mb-2">✓ 4-6 hours per week</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">Business English</h5>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">✓ Professional communication</li>
+                                        <li class="mb-2">✓ 10 weeks per level</li>
+                                        <li class="mb-2">✓ 3-5 hours per week</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Learning Features</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-user-graduate fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Expert Teachers</h5>
+                                    <p class="mb-0">Qualified and experienced instructors</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-laptop fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Online Learning</h5>
+                                    <p class="mb-0">Study from anywhere, anytime</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-users fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Small Classes</h5>
+                                    <p class="mb-0">Maximum 8 students per class</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-certificate fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Certification</h5>
+                                    <p class="mb-0">Receive certificates upon completion</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enrollment Process -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Enrollment Process</h2>
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item border-0">Complete the registration form</li>
+                        <li class="list-group-item border-0">Take a placement test</li>
+                        <li class="list-group-item border-0">Choose your program and schedule</li>
+                        <li class="list-group-item border-0">Make payment</li>
+                        <li class="list-group-item border-0">Start learning!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="text-center">
+                <a href="{% url 'auth:join_student' %}" class="btn btn-primary btn-lg">Enroll Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

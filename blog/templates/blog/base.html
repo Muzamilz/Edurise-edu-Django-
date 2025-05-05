@@ -1,0 +1,59 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block title %}{% block blog_title %}Blog - Eduraise{% endblock %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{% block blog_title %}{% endblock %}</h1>
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-8">
+            {% block blog_content %}{% endblock %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Categories</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="{% url 'blog:blog_list' %}" class="text-decoration-none">
+                                All Posts
+                            </a>
+                        </li>
+                        {% for category in categories %}
+                        <li>
+                            <a href="{% url 'blog:blog_list' %}?category={{ category.slug }}" class="text-decoration-none">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            {% if user.is_authenticated and user.role == 'teacher' %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Blog Management</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'blog:create_post' %}" class="btn btn-primary w-100 mb-2">
+                        Create New Post
+                    </a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'blog:manage_comments' %}" class="btn btn-outline-primary w-100">
+                        Manage Comments
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

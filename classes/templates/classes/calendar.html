@@ -1,0 +1,41 @@
+{% extends 'classes/base.html' %}
+{% load static %}
+
+{% block title %}Class Calendar{% endblock %}
+
+{% block extra_css %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+{% endblock %}
+
+{% block class_content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="mb-0">Class Calendar</h2>
+    </div>
+    <div class="card-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: {{ calendar_events|safe }},
+        eventClick: function(info) {
+            window.location.href = info.event.url;
+        }
+    });
+    calendar.render();
+});
+</script>
+{% endblock %} 

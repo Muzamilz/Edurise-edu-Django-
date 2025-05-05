@@ -1,0 +1,92 @@
+{% extends 'authentication/base.html' %}
+
+{% block title %}{{ user.username }}'s Profile - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary mb-3 mx-auto" style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center;">
+                            <span class="text-white" style="font-size: 4rem;">{{ user.username|first|upper }}</span>
+                        </div>
+                    {% endif %}
+                    <h4>{{ user.get_full_name }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                    <div class="mt-3">
+                        <a href="{% url 'auth:profile_edit' %}" class="btn btn-primary">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">About</h5>
+                    <p class="card-text">{{ user.bio|default:"No bio available." }}</p>
+                </div>
+            </div>
+
+            {% if user.role == 'student' %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Enrollments</h5>
+                        {% if enrollments %}
+                            <div class="list-group">
+                                {% for enrollment in enrollments %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ enrollment.course.title }}</h6>
+                                                <small class="text-muted">Progress: {{ enrollment.progress }}%</small>
+                                            </div>
+                                            <span class="badge {% if enrollment.status == 'active' %}bg-success{% else %}bg-warning{% endif %}">
+                                                {{ enrollment.status|title }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">You haven't enrolled in any courses yet.</p>
+                            <a href="{% url 'courses:program_list' %}" class="btn btn-primary">Browse Programs</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% elif user.role == 'teacher' %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Programs</h5>
+                        {% if programs %}
+                            <div class="list-group">
+                                {% for program in programs %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ program.title }}</h6>
+                                                <small class="text-muted">{{ program.courses.count }} courses</small>
+                                            </div>
+                                            <div>
+                                                <a href="{% url 'courses:program_detail' program.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                                <a href="{% url 'courses:create_course' program.id %}" class="btn btn-sm btn-outline-success">Add Course</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">You haven't created any programs yet.</p>
+                            <a href="{% url 'courses:create_program' %}" class="btn btn-primary">Create Program</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

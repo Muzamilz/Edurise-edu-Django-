@@ -1,0 +1,141 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+{% load mathfilters %}
+
+{% block title %}Student Dashboard - EduRaise{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar is now handled by base.html -->
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold section-title mb-0">Welcome, {{ request.user.get_full_name }}!</h2>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{% url 'auth:programs' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-1"></i> Browse Programs
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Metrics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-primary">Total Courses</div>
+                            <div class="fs-3 fw-bold">{{ performance_metrics.courses_in_progress|add:performance_metrics.courses_completed|default:'0' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-success">Completed</div>
+                            <div class="fs-3 fw-bold">{{ performance_metrics.courses_completed|default:'0' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-info">In Progress</div>
+                            <div class="fs-3 fw-bold">{{ performance_metrics.courses_in_progress|default:'0' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body text-center">
+                            <div class="fw-bold mb-2 text-warning">Completion Rate</div>
+                            <div class="fs-3 fw-bold">{{ performance_metrics.avg_completion|default:'0' }}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Courses Table -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Courses</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Course</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Last Accessed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in progress_data %}
+                                <tr>
+                                    <td style="width:48px;">
+                                        <img src="{{ course.program.cover.url|default:'/static/img/course-placeholder.png' }}" class="rounded-circle" alt="Course" width="40" height="40">
+                                    </td>
+                                    <td>{{ course.program.title }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 18px;">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ course.progress_percentage }}%; transition: width 0.6s;" aria-valuenow="{{ course.progress_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                                {{ course.progress_percentage|floatformat:1 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if course.progress_percentage == 100 %}success{% else %}primary{% endif %}">
+                                            {% if course.progress_percentage == 100 %}Completed{% else %}In Progress{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if course.last_accessed %}
+                                            {{ course.last_accessed.title }}<br>
+                                            <small class="text-muted">{{ course.last_accessed.updated_at|date:"M d, Y H:i" }}</small>
+                                        {% else %}
+                                            Never
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-secondary me-1" title="View Details"><i class="fas fa-info-circle"></i></a>
+                                        {% if course.next_lesson %}
+                                        <a href="#" class="btn btn-sm btn-primary" title="Continue Learning"><i class="fas fa-play"></i> Continue</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center text-muted">You are not enrolled in any courses yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Recent Activity -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if activities %}
+                        <ul class="timeline list-unstyled">
+                            {% for activity in activities %}
+                            <li class="timeline-item mb-3">
+                                <i class="{{ activity.icon }}"></i>
+                                <span class="ms-2">{{ activity.title }}</span>
+                                <div class="text-muted small">{{ activity.program }} &middot; {{ activity.date|timesince }} ago</div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center text-muted">No recent activity.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

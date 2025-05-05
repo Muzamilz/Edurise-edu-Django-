@@ -1,0 +1,122 @@
+{% extends 'admin_tools/base.html' %}
+{% load static %}
+
+{% block title %}System Settings - Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">System Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="settingsForm">
+                        {% csrf_token %}
+                        
+                        <!-- General Settings -->
+                        <h6 class="mb-3">General Settings</h6>
+                        <div class="mb-4">
+                            <label for="site_name" class="form-label">Site Name</label>
+                            <input type="text" class="form-control" id="site_name" name="site_name" 
+                                   value="{{ settings.site_name }}" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="site_description" class="form-label">Site Description</label>
+                            <textarea class="form-control" id="site_description" name="site_description" 
+                                    rows="3">{{ settings.site_description }}</textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="contact_email" class="form-label">Contact Email</label>
+                            <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                   value="{{ settings.contact_email }}" required>
+                        </div>
+                        
+                        <!-- System Configuration -->
+                        <h6 class="mb-3 mt-5">System Configuration</h6>
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="maintenance_mode" 
+                                       name="maintenance_mode" {% if settings.maintenance_mode %}checked{% endif %}>
+                                <label class="form-check-label" for="maintenance_mode">Maintenance Mode</label>
+                            </div>
+                            <small class="text-muted">When enabled, only administrators can access the site.</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="allow_registration" 
+                                       name="allow_registration" {% if settings.allow_registration %}checked{% endif %}>
+                                <label class="form-check-label" for="allow_registration">Allow User Registration</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="default_user_role" class="form-label">Default User Role</label>
+                            <select class="form-select" id="default_user_role" name="default_user_role">
+                                <option value="student" {% if settings.default_user_role == 'student' %}selected{% endif %}>Student</option>
+                                <option value="teacher" {% if settings.default_user_role == 'teacher' %}selected{% endif %}>Teacher</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Email Settings -->
+                        <h6 class="mb-3 mt-5">Email Settings</h6>
+                        <div class="mb-4">
+                            <label for="smtp_host" class="form-label">SMTP Host</label>
+                            <input type="text" class="form-control" id="smtp_host" name="smtp_host" 
+                                   value="{{ settings.smtp_host }}">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="smtp_port" class="form-label">SMTP Port</label>
+                            <input type="number" class="form-control" id="smtp_port" name="smtp_port" 
+                                   value="{{ settings.smtp_port }}">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="smtp_username" class="form-label">SMTP Username</label>
+                            <input type="text" class="form-control" id="smtp_username" name="smtp_username" 
+                                   value="{{ settings.smtp_username }}">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="smtp_password" class="form-label">SMTP Password</label>
+                            <input type="password" class="form-control" id="smtp_password" name="smtp_password" 
+                                   value="{{ settings.smtp_password }}">
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Basic form validation
+    const siteName = document.getElementById('site_name').value.trim();
+    const contactEmail = document.getElementById('contact_email').value.trim();
+    
+    if (!siteName || !contactEmail) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // If validation passes, submit the form
+    this.submit();
+});
+</script>
+{% endblock %}
+{% endblock %} 

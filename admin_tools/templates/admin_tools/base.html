@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduRaise Admin{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9acb5c;
+            --secondary-color: #2C3E50;
+            --accent-color: #9acb5c;
+            --success-color: #9acb5c;
+            --warning-color: #F1C40F;
+            --light-bg: #FFFFFF;
+            --dark-bg: #1A1A1A;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+        }
+        body { font-family: 'Poppins', sans-serif; background: var(--light-bg); color: var(--text-primary); }
+        .navbar {
+            background-color: var(--light-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--primary-color) !important;
+        }
+        .sidebar {
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            width: 250px;
+            border-radius: 0 16px 16px 0;
+            padding-top: 2rem;
+        }
+        .sidebar .nav-link {
+            color: var(--text-primary);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem !important;
+            border-radius: 8px;
+            margin: 0.25rem 1rem;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            color: #fff !important;
+            background: var(--primary-color);
+        }
+        .sidebar .nav-link i {
+            width: 24px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            min-height: calc(100vh - 76px);
+            background: #f8f9fa;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background-color: #88b84d;
+            border-color: #88b84d;
+        }
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+        .footer {
+            background-color: var(--light-bg);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid #eee;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="{% url 'admin_tools:admin_dashboard' %}">
+                <img src="{% static 'images/logo.svg'%}" alt="EduRaise Logo" height="38">
+                <span class="ms-2">EduRaise Admin</span>
+            </a>
+        </div>
+    </nav>
+    <div class="d-flex">
+        <nav class="sidebar">
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_tools:admin_dashboard' %}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'programs:program_list' %}"><i class="fas fa-graduation-cap me-2"></i>Programs</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'classes:class_list' %}"><i class="fas fa-chalkboard-teacher me-2"></i>Classes</a></li>
+                {# <li class="nav-item"><a class="nav-link" href="{% url 'courses:course_list' %}"><i class="fas fa-book me-2"></i>Courses</a></li> #}
+                <li class="nav-item"><a class="nav-link" href="{% url 'zoom:virtual_class_list' %}"><i class="fas fa-video me-2"></i>Virtual Classes</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:announcement_list' %}"><i class="fas fa-bullhorn me-2"></i>Announcements</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:user_management' %}"><i class="fas fa-users me-2"></i>User Management</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:system_settings' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+            </ul>
+        </nav>
+        <main class="main-content w-100">
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+    <footer class="footer text-center py-3 bg-light mt-4">
+        <span class="fw-bold">&copy; 2025 EduRaise Admin. All rights reserved.</span>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

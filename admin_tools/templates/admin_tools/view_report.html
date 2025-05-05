@@ -1,0 +1,260 @@
+{% extends 'admin_tools/base.html' %}
+
+{% block admin_content %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">{{ report.name }}</h5>
+                <small class="text-muted">{{ report.get_report_type_display }}</small>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary" onclick="exportReport()">
+                    <i class="fas fa-download me-2"></i>Export
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="refreshReport()">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <p class="mb-1"><strong>Created By:</strong> {{ report.created_by.get_full_name }}</p>
+                <p class="mb-1"><strong>Created At:</strong> {{ report.created_at|date:"M d, Y H:i" }}</p>
+                <p class="mb-1"><strong>Last Run:</strong> {{ report.last_run|date:"M d, Y H:i" }}</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1"><strong>Status:</strong> 
+                    <span class="badge {% if report.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ report.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                </p>
+                {% if report.parameters %}
+                <p class="mb-1"><strong>Parameters:</strong></p>
+                <ul class="list-unstyled mb-0">
+                    {% for key, value in report.parameters.items %}
+                    <li><small>{{ key }}: {{ value }}</small></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row mb-4">
+            {% if report.report_type == 'user_growth' %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">User Growth Over Time</h6>
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% elif report.report_type == 'course_performance' %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Enrollment Distribution</h6>
+                        <canvas id="enrollmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Completion Rate</h6>
+                        <canvas id="completionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% elif report.report_type == 'revenue' %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Revenue Over Time</h6>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Data Table -->
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0">Report Data</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="reportDataTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data_point in data %}
+                            <tr>
+                                <td>{{ data_point.timestamp|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <pre class="mb-0"><code>{{ data_point.data|pprint }}</code></pre>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center py-4">
+                                    <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
+                                    <p class="mb-0">No data available</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(document).ready(function() {
+    $('#reportDataTable').DataTable({
+        pageLength: 10,
+        order: [[0, 'desc']],
+        dom: '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center"l><"d-flex align-items-center"f>>t<"d-flex justify-content-between align-items-center mt-3"<"d-flex align-items-center"i><"d-flex align-items-center"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search data...",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "Showing 0 to 0 of 0 entries",
+            infoFiltered: "(filtered from _MAX_ total entries)"
+        }
+    });
+
+    // Initialize charts based on report type
+    {% if report.report_type == 'user_growth' %}
+    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    new Chart(userGrowthCtx, {
+        type: 'line',
+        data: {
+            labels: {{ user_growth_labels|safe }},
+            datasets: [{
+                label: 'Total Users',
+                data: {{ user_growth_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    {% elif report.report_type == 'course_performance' %}
+    const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
+    new Chart(enrollmentCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ enrollment_labels|safe }},
+            datasets: [{
+                label: 'Enrollments',
+                data: {{ enrollment_data|safe }},
+                backgroundColor: 'rgb(54, 162, 235)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    const completionCtx = document.getElementById('completionChart').getContext('2d');
+    new Chart(completionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'In Progress', 'Not Started'],
+            datasets: [{
+                data: {{ completion_data|safe }},
+                backgroundColor: [
+                    'rgb(75, 192, 192)',
+                    'rgb(255, 205, 86)',
+                    'rgb(255, 99, 132)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+    {% elif report.report_type == 'revenue' %}
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: {{ revenue_labels|safe }},
+            datasets: [{
+                label: 'Revenue',
+                data: {{ revenue_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+
+function exportReport() {
+    // Implement export functionality
+    window.location.href = "{% url 'admin_tools:view_report' report.id %}?export=1";
+}
+
+function refreshReport() {
+    // Implement refresh functionality
+    window.location.reload();
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,43 @@
+{% extends 'authentication/base.html' %}
+
+{% block title %}{{ program_type_display }} - Eduraise{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ program_type_display }}</h1>
+        <a href="{% url 'programs:program_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to All Programs
+        </a>
+    </div>
+    
+    <div class="row">
+        {% for program in programs %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                {% if program.cover_photo %}
+                <img src="{{ program.cover_photo.url }}" class="card-img-top" alt="{{ program.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ program.title }}</h5>
+                    <p class="card-text">{{ program.description|truncatewords:30 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-secondary">{{ program.get_level_display }}</span>
+                        <span class="badge bg-info">{{ program.duration }}</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'programs:program_detail' program.id %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No {{ program_type_display }} programs available at the moment.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 
