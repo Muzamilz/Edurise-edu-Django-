@@ -185,7 +185,7 @@ class ZoomAnalytics(models.Model):
         unique_together = ('program', 'date')
 
     def __str__(self):
-        return f"{self.program.name} - {self.date}"
+        return f"{self.program.name} - {self.date}" 
 
 class VirtualClass(models.Model):
     STATUS_CHOICES = [

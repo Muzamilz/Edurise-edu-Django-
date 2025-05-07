@@ -1,11 +1,7 @@
+@import url('/static/css/edurise-colors.css');
+
 :root {
-    /* Base colors */
-    --primary-color: #2FD7B5;
-    --secondary-color: #1A2238;
-    --accent-color: #FF6B6B;
-    --text-color: #333333;
-    --light-bg: #F8F9FA;
-    --green-brand: #9acb5c;
+    /* Remove color variables, keep only unique or non-color variables */
     --border-radius: 12px;
     --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     --transition: all 0.3s ease;
@@ -933,12 +929,6 @@ hr {
 
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --text-color: #ffffff;
-        --light-bg: #1a1a1a;
-        --secondary-color: #ffffff;
-    }
-
     body {
         background-color: #121212;
         color: var(--text-color);

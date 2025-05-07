@@ -172,7 +172,7 @@ def bulk_user_operations(request):
                     'Active' if user.is_active else 'Inactive'
                 ])
             return response
-            
+        
         elif operation == 'send_email':
             subject = request.POST.get('email_subject')
             message = request.POST.get('email_message')
@@ -190,7 +190,7 @@ def bulk_user_operations(request):
                     entity_type='User',
                     entity_id=str(user.id),
                     details=f'Sent email to {user.email}: {subject}'
-                )
+                    )
             messages.success(request, f'Email queued for {users.count()} users.')
     
     # Get all users for the selection
@@ -483,7 +483,7 @@ def admin_dashboard(request):
     
     # Sort activities by timestamp
     recent_activities.sort(key=lambda x: x['timestamp'], reverse=True)
-    
+
     context = {
         'total_users': total_users,
         'total_programs': total_programs,
@@ -990,7 +990,7 @@ def admin_approve_user(request, user_id):
                 'age': student_profile.age,
                 'interests': student_profile.interests,
             }
-
+    
     if request.method == 'POST':
         user.is_active = True
         user.is_approved = True
@@ -1005,7 +1005,7 @@ def admin_approve_user(request, user_id):
         )
         messages.success(request, f'User {user.email} has been approved.')
         return redirect('admin_tools:user_management')
-
+    
     context = {
         'user': user,
         'extra_info': extra_info,

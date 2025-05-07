@@ -24,13 +24,14 @@
                     </div>
                 </div>
             </div>
+
             <!-- Metrics Cards -->
             <div class="row g-4 mb-4">
                 <div class="col-md-3 col-6">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-primary">Total Students</div>
-                            <div class="fs-3 fw-bold">{{ total_students|default:'0' }}</div>
+                            <div class="fs-3 fw-bold">{{ program_stats.total_students }}</div>
                         </div>
                     </div>
                 </div>
@@ -38,7 +39,7 @@
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-success">Active Programs</div>
-                            <div class="fs-3 fw-bold">{{ active_programs|default:'0' }}</div>
+                            <div class="fs-3 fw-bold">{{ program_stats.active_programs }}</div>
                         </div>
                     </div>
                 </div>
@@ -46,7 +47,7 @@
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-info">Total Courses</div>
-                            <div class="fs-3 fw-bold">{{ total_courses|default:'0' }}</div>
+                            <div class="fs-3 fw-bold">{{ program_stats.total_courses }}</div>
                         </div>
                     </div>
                 </div>
@@ -54,11 +55,12 @@
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-warning">Average Rating</div>
-                            <div class="fs-3 fw-bold">{{ average_rating|floatformat:1|default:'--' }}</div>
+                            <div class="fs-3 fw-bold">{{ program_stats.average_rating|floatformat:1 }}</div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!-- Programs Table -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -82,6 +84,7 @@
                                 <th>Progress</th>
                                 <th>Students</th>
                                 <th>Rating</th>
+                                <th>Attendance</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -91,7 +94,9 @@
                                 <td>
                                     <div class="d-flex px-2 py-1">
                                         <div>
-                                            <img src="{{ program.thumbnail.url|default:'/static/img/program-placeholder.jpg' }}" class="avatar me-3" alt="program" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
+                                            <img src="{{ program.cover_photo.url|default:'/static/img/program-placeholder.jpg' }}" 
+                                                 class="avatar me-3" alt="program" 
+                                                 style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
                                         </div>
                                         <div class="d-flex flex-column justify-content-center">
                                             <h6 class="mb-0 text-sm">{{ program.title }}</h6>
@@ -101,11 +106,19 @@
                                 </td>
                                 <td>
                                     <div class="progress">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ program.completion_rate }}%;" aria-valuenow="{{ program.completion_rate }}" aria-valuemin="0" aria-valuemax="100">{{ program.completion_rate }}%</div>
+                                        <div class="progress-bar bg-info" role="progressbar" 
+                                             style="width: {{ program.completion_rate }}%;" 
+                                             aria-valuenow="{{ program.completion_rate }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ program.completion_rate|floatformat:1 }}%
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="align-middle text-center">
-                                    <span class="text-secondary text-sm font-weight-bold">{{ program.total_enrollments }}</span>
+                                    <span class="text-secondary text-sm font-weight-bold">
+                                        {{ program.active_enrollments }}/{{ program.total_enrollments }}
+                                    </span>
                                 </td>
                                 <td class="align-middle text-center">
                                     <div class="d-flex align-items-center justify-content-center">
@@ -115,21 +128,34 @@
                                         </div>
                                     </div>
                                 </td>
+                                <td class="align-middle text-center">
+                                    <span class="text-secondary text-sm font-weight-bold">
+                                        {{ program.attendance_rate|floatformat:1 }}%
+                                    </span>
+                                </td>
                                 <td class="align-middle text-center text-sm">
-                                    <span class="badge bg-{% if program.status == 'active' %}success{% elif program.status == 'completed' %}primary{% else %}secondary{% endif %}">{{ program.status|capfirst }}</span>
+                                    <span class="badge bg-{% if program.status == 'active' %}success{% elif program.status == 'completed' %}primary{% else %}secondary{% endif %}">
+                                        {{ program.get_status_display }}
+                                    </span>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="5" class="text-center text-muted">No programs found.</td></tr>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No programs found.</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
             <!-- Upcoming Classes -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Upcoming Classes</h5>
+                    <a href="{% url 'classes:create_class' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i> Schedule New Class
+                    </a>
                 </div>
                 <div class="card-body">
                     {% if upcoming_classes %}
@@ -141,6 +167,7 @@
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Program</th>
+                                        <th>Students</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -151,9 +178,12 @@
                                         <td>{{ class.start_time|date:"M d, Y" }}</td>
                                         <td>{{ class.start_time|date:"H:i" }} - {{ class.end_time|date:"H:i" }}</td>
                                         <td>{{ class.program.title }}</td>
+                                        <td>{{ class.enrolled_students.count }}</td>
                                         <td>
                                             {% if class.meeting_link %}
-                                                <a href="{{ class.meeting_link }}" class="btn btn-sm btn-success" target="_blank">Join</a>
+                                                <a href="{{ class.meeting_link }}" class="btn btn-sm btn-success" target="_blank">
+                                                    <i class="fas fa-video me-1"></i> Join
+                                                </a>
                                             {% else %}
                                                 <span class="text-muted">-</span>
                                             {% endif %}
@@ -168,6 +198,75 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Recent Blog Posts -->
+            {% if recent_posts %}
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Blog Posts</h5>
+                    <a href="{% url 'blog:create_post' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i> New Post
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for post in recent_posts %}
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                {% if post.cover_image %}
+                                <img src="{{ post.cover_image.url }}" class="card-img-top" alt="{{ post.title }}">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ post.title }}</h6>
+                                    <p class="card-text text-muted small">{{ post.created_at|date:"M d, Y" }}</p>
+                                    <a href="{% url 'blog:post_detail' post.slug %}" class="btn btn-sm btn-outline-primary">Read More</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Student Feedback -->
+            {% if student_feedback %}
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Student Feedback</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for feedback in student_feedback %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="card-title mb-0">{{ feedback.program.title }}</h6>
+                                        <div class="text-warning">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= feedback.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <p class="card-text small text-muted mb-2">
+                                        By {{ feedback.user.get_full_name }} on {{ feedback.created_at|date:"M d, Y" }}
+                                    </p>
+                                    {% if feedback.review %}
+                                    <p class="card-text">{{ feedback.review|truncatechars:100 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

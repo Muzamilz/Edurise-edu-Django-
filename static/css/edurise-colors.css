@@ -1,0 +1,35 @@
+/* Edurise Color Palette */
+:root {
+  --primary-color: #2FD7B5;
+  --secondary-color: #1A2238;
+  --accent-color: #FF6B6B;
+  --text-color: #333333;
+  --light-bg: #F8F9FA;
+  --green-brand: #9acb5c;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --transition: all 0.3s ease;
+  /* Add more as needed */
+}
+
+/* Utility classes for background and text colors */
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-secondary { background-color: var(--secondary-color) !important; }
+.bg-accent { background-color: var(--accent-color) !important; }
+.bg-light { background-color: var(--light-bg) !important; }
+.bg-green { background-color: var(--green-brand) !important; }
+
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--secondary-color) !important; }
+.text-accent { color: var(--accent-color) !important; }
+.text-green { color: var(--green-brand) !important; }
+.text-light { color: var(--light-bg) !important; }
+.text-dark { color: var(--text-color) !important; }
+
+/* Border color utilities */
+.border-primary { border-color: var(--primary-color) !important; }
+.border-secondary { border-color: var(--secondary-color) !important; }
+.border-accent { border-color: var(--accent-color) !important; }
+.border-green { border-color: var(--green-brand) !important; }
+
+/* Example usage: <div class="bg-primary text-light"> */ 

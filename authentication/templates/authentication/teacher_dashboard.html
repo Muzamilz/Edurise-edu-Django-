@@ -1,0 +1,223 @@
+{% extends 'authentication/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Programs</h5>
+                    <h2 class="mb-0">{{ total_programs }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Programs</h5>
+                    <h2 class="mb-0">{{ active_programs }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Students</h5>
+                    <h2 class="mb-0">{{ total_students }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Upcoming Classes</h5>
+                    <h2 class="mb-0">{{ upcoming_classes|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Upcoming Classes -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Upcoming Classes</h5>
+                    <a href="{% url 'classes:create_class' %}" class="btn btn-sm btn-primary">Create Class</a>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_classes %}
+                        <div class="list-group">
+                            {% for class in upcoming_classes %}
+                                <div class="list-group-item">
+                                    <h6 class="mb-1">{{ class.title }}</h6>
+                                    <p class="mb-1 text-muted">{{ class.start_date|date:"F j, Y" }} at {{ class.start_time|time:"g:i A" }}</p>
+                                    <small>{{ class.program.title }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No upcoming classes scheduled.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Zoom Integration -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Virtual Classes</h5>
+                    {% if zoom_user %}
+                        <a href="{% url 'zoom:create_meeting' %}" class="btn btn-sm btn-primary">Create Meeting</a>
+                    {% else %}
+                        <a href="{% url 'zoom:connect' %}" class="btn btn-sm btn-primary">Connect Zoom</a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if zoom_user %}
+                        {% if upcoming_meetings %}
+                            <div class="list-group">
+                                {% for meeting in upcoming_meetings %}
+                                    <div class="list-group-item">
+                                        <h6 class="mb-1">{{ meeting.topic }}</h6>
+                                        <p class="mb-1 text-muted">{{ meeting.start_time|date:"F j, Y" }} at {{ meeting.start_time|time:"g:i A" }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small>{{ meeting.program.title }}</small>
+                                            <a href="{{ meeting.join_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Join</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">No upcoming virtual classes scheduled.</p>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="mb-3">Connect your Zoom account to start hosting virtual classes.</p>
+                            <a href="{% url 'zoom:connect' %}" class="btn btn-primary">Connect Zoom</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Enrollments -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Enrollments</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_enrollments %}
+                        <div class="list-group">
+                            {% for enrollment in recent_enrollments %}
+                                <div class="list-group-item">
+                                    <h6 class="mb-1">{{ enrollment.student.get_full_name }}</h6>
+                                    <p class="mb-1 text-muted">{{ enrollment.program.title }}</p>
+                                    <small class="badge bg-{{ enrollment.status }}">{{ enrollment.get_status_display }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No recent enrollments.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Meeting Templates -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Meeting Templates</h5>
+                    {% if zoom_user %}
+                        <a href="{% url 'zoom:create_template' %}" class="btn btn-sm btn-primary">Create Template</a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if zoom_user %}
+                        {% if meeting_templates %}
+                            <div class="list-group">
+                                {% for template in meeting_templates %}
+                                    <div class="list-group-item">
+                                        <h6 class="mb-1">{{ template.name }}</h6>
+                                        <p class="mb-1 text-muted">{{ template.topic }}</p>
+                                        <small>{{ template.duration }} minutes</small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">No meeting templates created yet.</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted mb-0">Connect Zoom to manage meeting templates.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Feedback -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Feedback</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_feedback %}
+                        <div class="list-group">
+                            {% for feedback in recent_feedback %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-1">{{ feedback.meeting.topic }}</h6>
+                                        <div class="text-warning">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= feedback.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <p class="mb-1">{{ feedback.comment }}</p>
+                                    <small class="text-muted">By {{ feedback.student.get_full_name }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No recent feedback received.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Statistics -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Attendance Statistics (Last 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h3 class="text-success">{{ attendance_stats.total_present }}</h3>
+                            <p class="text-muted mb-0">Present</p>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-warning">{{ attendance_stats.total_late }}</h3>
+                            <p class="text-muted mb-0">Late</p>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-danger">{{ attendance_stats.total_absent }}</h3>
+                            <p class="text-muted mb-0">Absent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

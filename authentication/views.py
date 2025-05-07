@@ -36,6 +36,7 @@ import uuid
 from .decorators import student_required, teacher_required
 from programs.models import EducationalProgram
 from programs.forms import ProgramForm
+from zoom_integration.models import ZoomUser, ZoomMeeting, MeetingTemplate, MeetingFeedback, ZoomAttendance
 
 # Template-based views
 def home_view(request):
@@ -162,13 +163,63 @@ def student_dashboard(request):
 @login_required
 @teacher_required
 def teacher_dashboard(request):
-    """View for teacher dashboard."""
-    programs = EducationalProgram.objects.filter(teacher=request.user)
+    teacher = request.user
+    today = timezone.now().date()
+    
+    # Get upcoming classes
+    upcoming_classes = Class.objects.filter(
+        teacher=teacher,
+        start_date__gte=today
+    ).order_by('start_date')[:5]
+    
+    # Get recent enrollments
+    recent_enrollments = Enrollment.objects.filter(
+        program__instructor=teacher
+    ).order_by('-created_at')[:5]
+    
+    # Get program statistics
+    total_programs = EducationalProgram.objects.filter(instructor=teacher).count()
+    active_programs = EducationalProgram.objects.filter(instructor=teacher, status='active').count()
+    total_students = Enrollment.objects.filter(program__instructor=teacher).count()
+    
+    # Get Zoom integration data
+    zoom_user = ZoomUser.objects.filter(user=teacher).first()
+    upcoming_meetings = ZoomMeeting.objects.filter(
+        teacher=teacher,
+        start_time__gte=timezone.now()
+    ).order_by('start_time')[:5]
+    
+    # Get meeting templates
+    meeting_templates = MeetingTemplate.objects.filter(teacher=teacher)[:5]
+    
+    # Get recent meeting feedback
+    recent_feedback = MeetingFeedback.objects.filter(
+        meeting__teacher=teacher
+    ).select_related('meeting', 'student').order_by('-created_at')[:5]
+    
+    # Get attendance statistics
+    attendance_stats = ZoomAttendance.objects.filter(
+        meeting__teacher=teacher,
+        meeting__start_time__gte=timezone.now() - timedelta(days=7)
+    ).aggregate(
+        total_present=Count('id', filter=Q(status='present')),
+        total_late=Count('id', filter=Q(status='late')),
+        total_absent=Count('id', filter=Q(status='absent'))
+    )
+    
     context = {
-        'programs': programs,
-        'page_title': 'Teacher Dashboard',
-        'page_description': 'Manage your teaching programs.'
+        'upcoming_classes': upcoming_classes,
+        'recent_enrollments': recent_enrollments,
+        'total_programs': total_programs,
+        'active_programs': active_programs,
+        'total_students': total_students,
+        'zoom_user': zoom_user,
+        'upcoming_meetings': upcoming_meetings,
+        'meeting_templates': meeting_templates,
+        'recent_feedback': recent_feedback,
+        'attendance_stats': attendance_stats,
     }
+    
     return render(request, 'authentication/teacher_dashboard.html', context)
 
 @login_required

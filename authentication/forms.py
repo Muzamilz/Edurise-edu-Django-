@@ -12,38 +12,23 @@ User = get_user_model()
 class UserLoginForm(forms.Form):
     username_or_email = forms.CharField(
         label='Email or Username',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email or Username'})
+        widget=forms.TextInput()
     )
     password = forms.CharField(
         label='Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+        widget=forms.PasswordInput()
     )
     remember_me = forms.BooleanField(
         required=False,
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        widget=forms.CheckboxInput()
     )
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(
-        label='Email',
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
-    )
-    username = forms.CharField(
-        label='Username',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'})
-    )
-    role = forms.ChoiceField(
-        choices=User.ROLE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-    password1 = forms.CharField(
-        label='Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
-    )
-    password2 = forms.CharField(
-        label='Confirm Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'})
-    )
+    email = forms.EmailField(label='Email')
+    username = forms.CharField(label='Username')
+    role = forms.ChoiceField(choices=User.ROLE_CHOICES)
+    password1 = forms.CharField(label='Password')
+    password2 = forms.CharField(label='Confirm Password')
 
     class Meta:
         model = User
@@ -62,10 +47,7 @@ class UserRegistrationForm(UserCreationForm):
         return username
 
 class CustomPasswordResetForm(PasswordResetForm):
-    email = forms.EmailField(
-        max_length=254,
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'})
-    )
+    email = forms.EmailField(max_length=254)
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -74,28 +56,17 @@ class CustomPasswordResetForm(PasswordResetForm):
         return email
 
 class CustomSetPasswordForm(SetPasswordForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['new_password1'].widget.attrs.update({'class': 'form-control'})
-        self.fields['new_password2'].widget.attrs.update({'class': 'form-control'})
+    pass
 
 class CustomPasswordChangeForm(PasswordChangeForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['old_password'].widget.attrs.update({'class': 'form-control'})
-        self.fields['new_password1'].widget.attrs.update({'class': 'form-control'})
-        self.fields['new_password2'].widget.attrs.update({'class': 'form-control'})
+    pass
 
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'bio', 'profile_picture']
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'profile_picture': forms.FileInput(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'rows': 4}),
         }
 
 class ProgramForm(forms.ModelForm):
@@ -107,17 +78,9 @@ class ProgramForm(forms.ModelForm):
             'status', 'start_date', 'end_date'
         ]
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
-            'program_type': forms.Select(attrs={'class': 'form-select'}),
-            'level': forms.Select(attrs={'class': 'form-select'}),
-            'duration': forms.TextInput(attrs={'class': 'form-control'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'cover_photo': forms.FileInput(attrs={'class': 'form-control'}),
-            'instructor': forms.Select(attrs={'class': 'form-select'}),
-            'status': forms.Select(attrs={'class': 'form-select'}),
-            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 5}),
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -137,13 +100,9 @@ class VirtualClassForm(forms.ModelForm):
             'start_time', 'end_time', 'status'
         ]
         widgets = {
-            'program': forms.Select(attrs={'class': 'form-select'}),
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
-            'instructor': forms.Select(attrs={'class': 'form-select'}),
-            'start_time': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'end_time': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'status': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'rows': 5}),
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -157,7 +116,7 @@ class VirtualClassForm(forms.ModelForm):
 
 class StudentJoinForm(UserCreationForm):
     age = forms.IntegerField(required=True, min_value=10, max_value=100)
-    interests = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows':2}))
+    interests = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 2}))
 
     class Meta:
         model = User
@@ -165,7 +124,7 @@ class StudentJoinForm(UserCreationForm):
 
 class TeacherJoinForm(UserCreationForm):
     education = forms.CharField(required=True, max_length=255)
-    experience = forms.CharField(required=True, widget=forms.Textarea(attrs={'rows':2}))
+    experience = forms.CharField(required=True, widget=forms.Textarea(attrs={'rows': 2}))
     expertise = forms.CharField(required=True, max_length=255)
     cv = forms.FileField(required=False)
 

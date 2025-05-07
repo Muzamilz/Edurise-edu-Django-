@@ -1,5 +1,6 @@
 {% extends 'authentication/base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block content %}
 <div class="container py-5">
@@ -16,22 +17,22 @@
                     <form method="post" novalidate>
                         {% csrf_token %}
                         <div class="mb-3">
-                            {{ form.username_or_email.label_tag }}
-                            {{ form.username_or_email }}
+                            <label for="{{ form.username_or_email.id_for_label }}" class="form-label">{{ form.username_or_email.label }}</label>
+                            {% render_field form.username_or_email class="form-control" placeholder="Enter your email or username" %}
                             {% if form.username_or_email.errors %}
                                 <div class="text-danger small">{{ form.username_or_email.errors.0 }}</div>
                             {% endif %}
                         </div>
                         <div class="mb-3">
-                            {{ form.password.label_tag }}
-                            {{ form.password }}
+                            <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                            {% render_field form.password class="form-control" placeholder="Enter your password" %}
                             {% if form.password.errors %}
                                 <div class="text-danger small">{{ form.password.errors.0 }}</div>
                             {% endif %}
                         </div>
                         <div class="mb-3 form-check">
-                            {{ form.remember_me }}
-                            {{ form.remember_me.label_tag }}
+                            {% render_field form.remember_me class="form-check-input" %}
+                            <label for="{{ form.remember_me.id_for_label }}" class="form-check-label">{{ form.remember_me.label }}</label>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>

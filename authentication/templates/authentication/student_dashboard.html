@@ -16,7 +16,7 @@
                         <a href="{% url 'auth:programs' %}" class="btn btn-outline-primary">
                             <i class="fas fa-search me-1"></i> Browse Programs
                         </a>
-                    </div>
+    </div>
                 </div>
             </div>
             <!-- Metrics Cards -->
@@ -26,32 +26,32 @@
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-primary">Total Courses</div>
                             <div class="fs-3 fw-bold">{{ performance_metrics.courses_in_progress|add:performance_metrics.courses_completed|default:'0' }}</div>
-                        </div>
-                    </div>
+            </div>
+        </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-success">Completed</div>
                             <div class="fs-3 fw-bold">{{ performance_metrics.courses_completed|default:'0' }}</div>
-                        </div>
-                    </div>
+            </div>
+        </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-info">In Progress</div>
                             <div class="fs-3 fw-bold">{{ performance_metrics.courses_in_progress|default:'0' }}</div>
-                        </div>
-                    </div>
+            </div>
+        </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body text-center">
                             <div class="fw-bold mb-2 text-warning">Completion Rate</div>
                             <div class="fs-3 fw-bold">{{ performance_metrics.avg_completion|default:'0' }}%</div>
-                        </div>
-                    </div>
+                                </div>
+                            </div>
                 </div>
             </div>
             <!-- Courses Table -->

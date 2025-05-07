@@ -1,0 +1,19 @@
+/* Admin dashboard layout and component styles extracted from admin base.html */
+:root {
+    --primary-color: #9acb5c;
+    --secondary-color: #2C3E50;
+    --accent-color: #9acb5c;
+    --success-color: #9acb5c;
+    --warning-color: #F1C40F;
+    --light-bg: #FFFFFF;
+    --dark-bg: #1A1A1A;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --sidebar-width: 280px;
+    --navbar-height: 76px;
+    --content-padding: 2rem;
+    --card-spacing: 1.5rem;
+    --section-spacing: 2rem;
+}
+
+/* ... (rest of the CSS from the <style> block in admin_tools/base.html) ... */ 
